@@ -1,15 +1,34 @@
 {
   "name": "electron-hub",
+  "productName": "electron-hub",
   "version": "1.0.0",
-  "description": "",
-  "main": "main.ts",
+  "description": "My Electron application description",
+  "main": ".vite/build/main.js",
   "scripts": {
-    "dev": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron-forge start",
+    "dev": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "echo \"No linting configured\""
   },
-  "author": "",
+  "keywords": [],
+  "author": {
+    "name": "Yinghao Wang",
+    "email": "yinghao.a.wang@gmail.com"
+  },
   "license": "MIT",
   "devDependencies": {
-    "electron": "^27.0.2"
+    "@electron-forge/cli": "^6.4.2",
+    "@electron-forge/maker-deb": "^6.4.2",
+    "@electron-forge/maker-rpm": "^6.4.2",
+    "@electron-forge/maker-squirrel": "^6.4.2",
+    "@electron-forge/maker-zip": "^6.4.2",
+    "@electron-forge/plugin-auto-unpack-natives": "^6.4.2",
+    "@electron-forge/plugin-vite": "^6.4.2",
+    "electron": "27.0.2"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.0"
   }
 }
