@@ -1,5 +1,5 @@
-const { app, BrowserWindow, ipcMain, nativeTheme } = require('electron');
-const path = require('path');
+import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron';
+import path from 'path';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
