@@ -5,7 +5,7 @@ const server = fastify();
 const { ADDRESS = 'localhost', PORT = '8080' } = process.env;
 
 server.get('/', async (request, reply) => {
-  return { message: 'Hello world! yayo' };
+  return { message: 'Hello world!' };
 });
 
 server.get('/ping', async (request, reply) => {
