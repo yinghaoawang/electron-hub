@@ -12,7 +12,7 @@ server.get('/ping', async (request, reply) => {
   return 'pong\n';
 });
 
-server.listen({ host: ADDRESS, port: parseInt('3000', 10) }, (err, address) => {
+server.listen({ host: ADDRESS, port: parseInt(PORT, 10) }, (err, address) => {
   if (err) {
     console.error(err);
     process.exit(1);
