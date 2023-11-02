@@ -1,6 +1,6 @@
 export default function LeftSidebar() {
   return (
-    <div className='left-sidebar shrink-0 px-4 w-[250px] h-screen overflow-auto bg-gray-500'>
+    <div className='left-sidebar shrink-0 px-4 w-[250px] h-screen overflow-auto'>
       <div className='flex flex-col gap-1'>
         {[
           'Unreads',
@@ -21,8 +21,10 @@ export default function LeftSidebar() {
           'Apps',
           'Google Calendar',
           'Journal'
-        ].map((item) => (
-          <div className='my-1 py-1'>{item}</div>
+        ].map((item, index) => (
+          <div key={index} className='my-1 py-1'>
+            {item}
+          </div>
         ))}
       </div>
     </div>

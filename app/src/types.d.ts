@@ -3,3 +3,17 @@
 // whether you're running in development or production).
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
+
+// Expose the versions object to the renderer process
+interface Window {
+  versions: {
+    chrome: () => string;
+    electron: () => string;
+    node: () => string;
+    ping: () => Promise<boolean>;
+  };
+  darkMode: {
+    toggle: () => Promise<boolean>;
+    system: () => Promise<void>;
+  };
+}

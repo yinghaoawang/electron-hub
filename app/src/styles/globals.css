@@ -16,6 +16,15 @@ body {
     background: #333;
     color: white;
   }
+  button {
+    @apply bg-gray-900;
+  }
+  .nav-sidebar {
+    @apply bg-gray-900;
+  }
+  .left-sidebar {
+    @apply bg-gray-600;
+  }
 }
 
 @media (prefers-color-scheme: light) {
@@ -23,4 +32,17 @@ body {
     background: #ddd;
     color: black;
   }
+  button {
+    @apply bg-indigo-100;
+  }
+  .nav-sidebar {
+    @apply bg-gray-600;
+  }
+  .left-sidebar {
+    @apply bg-gray-400;
+  }
+}
+
+button {
+  @apply rounded-lg px-4 py-2;
 }
