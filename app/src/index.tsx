@@ -1,14 +1,29 @@
 import React from 'react';
-import RootPage from './pages/root';
 import './styles';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
+import MainLayout from './components/layouts/main-layout';
+import RootPage from './pages/root';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <RootPage />
+    element: (
+      <MainLayout>
+        <Outlet />
+      </MainLayout>
+    ),
+    children: [
+      {
+        path: '/',
+        element: <RootPage />
+      },
+      {
+        path: '/about',
+        element: <div>About</div>
+      }
+    ]
   }
 ]);
 
