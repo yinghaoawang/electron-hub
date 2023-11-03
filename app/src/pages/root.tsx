@@ -5,6 +5,7 @@ export default function RootPage() {
     <MainLayout className='flex flex-col gap-2'>
       <h1 className='text-3xl font-bold mb-3'>💖 Hello World!</h1>
       <p>Welcome to your Electron application.</p>
+      <div>NODE_ENV {import.meta.env.VITE_NODE_ENV}</div>
       <div>
         <button
           className='button'
