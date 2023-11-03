@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import { UserButton } from '@clerk/clerk-react';
+import { useUser } from '../../contexts/UserContext';
 
 export default function LeftSidebar() {
+  const { user } = useUser();
   return (
     <div className='left-sidebar shrink-0 w-[250px] h-screen flex flex-col justify-between'>
       <div className='px-4 overflow-auto'>
@@ -38,8 +40,9 @@ export default function LeftSidebar() {
         ))}
         d
       </div>
-      <div className='bg-black/40 p-4 flex shrink-0 h-20 items-center gap-2'>
+      <div className='bg-black/40 p-4 flex shrink-0 h-20 items-center gap-3'>
         <UserButton />
+        {user?.fullName}
       </div>
     </div>
   );

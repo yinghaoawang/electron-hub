@@ -9,6 +9,7 @@ import SignInPage from './pages/_auth/sign-in';
 import RedirectToSignIn from './components/auth/redirect-to-sign-in';
 import SignUpPage from './pages/_auth/sign-up';
 import AuthLayout from './components/layouts/auth-layout';
+import { UserProvider } from './contexts/UserContext';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 if (!clerkPubKey) {
@@ -54,7 +55,11 @@ const router = createBrowserRouter([
       },
       {
         path: '/about',
-        element: <div className='flex w-full justify-center mt-8 text-3xl'>Not much to say.</div>
+        element: (
+          <div className='flex w-full justify-center mt-8 text-3xl'>
+            Not much to say.
+          </div>
+        )
       }
     ]
   }
@@ -63,7 +68,9 @@ const router = createBrowserRouter([
 root.render(
   <React.StrictMode>
     <ClerkProvider publishableKey={clerkPubKey}>
-      <RouterProvider router={router} />
+      <UserProvider>
+        <RouterProvider router={router} />
+      </UserProvider>
     </ClerkProvider>
   </React.StrictMode>
 );
