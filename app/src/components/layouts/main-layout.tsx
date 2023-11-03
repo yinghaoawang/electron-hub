@@ -14,7 +14,10 @@ export default function MainLayout({
       <Navbar />
       <LeftSidebar />
       <div
-        className={cn('grow mx-auto mt-8 w-full max-w-[1000px] p-8', className)}
+        className={cn(
+          'grow w-full h-screen overflow-auto',
+          className
+        )}
       >
         {children}
       </div>

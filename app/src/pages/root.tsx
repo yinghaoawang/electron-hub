@@ -1,6 +1,6 @@
 export default function RootPage() {
   return (
-    <div className='flex flex-col gap-2'>
+    <div className='flex items-center mt-8 flex-col gap-2'>
       <h1 className='text-3xl font-bold mb-3'>💖 Hello World!</h1>
       <p>Welcome to your Electron application.</p>
       <div>NODE_ENV {import.meta.env.VITE_NODE_ENV}</div>
