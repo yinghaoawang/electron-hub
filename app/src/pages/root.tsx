@@ -1,7 +1,19 @@
+import { useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
+import useFetch from '../hooks/useFetch';
+
+const { VITE_API_URL } = import.meta.env;
 
 export default function RootPage() {
   const { toggleTheme, resetToSystemTheme } = useTheme();
+  const fetch = useFetch();
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await fetch(`${VITE_API_URL}`, { method: 'GET' });
+      console.log(res);
+    };
+    fetchData();
+  }, []);
   return (
     <div className='flex items-center mt-8 flex-col gap-2'>
       <h1 className='text-3xl font-bold mb-3'>💖 Hello World!</h1>

@@ -52,7 +52,7 @@ app.whenReady().then(() => {
     return nativeTheme.shouldUseDarkColors;
   });
 
-  ipcMain.handle('dark-mode:system', () => {
+  ipcMain.handle('dark-mode:reset', () => {
     nativeTheme.themeSource = 'system';
     return nativeTheme.shouldUseDarkColors;
   });

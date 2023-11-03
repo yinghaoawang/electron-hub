@@ -2,7 +2,6 @@ import {
   createContext,
   useContext,
   useState,
-  useEffect,
   Dispatch,
   SetStateAction
 } from 'react';
@@ -19,7 +18,7 @@ type ThemeContent = {
 const ThemeContext = createContext<ThemeContent>(null);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const resetToSystemTheme = async () => {
-    const isDarkMode = (await window.darkMode.system()) ? 'dark' : 'light';
+    const isDarkMode = (await window.darkMode.reset()) ? 'dark' : 'light';
     setTheme(isDarkMode);
     return isDarkMode;
   };

@@ -1,21 +1,35 @@
-import fastify from 'fastify';
-
-const server = fastify();
+import Fastify from 'fastify';
+import cors from 'cors';
+import { ClerkExpressRequireAuth } from '@clerk/clerk-sdk-node';
 
 const { ADDRESS = 'localhost', PORT = '8080' } = process.env;
 
-server.get('/', async (request, reply) => {
-  return { message: 'Hello world!' };
-});
+async function build() {
+  const fastify = Fastify();
+  await fastify.register(require('@fastify/express'));
 
-server.get('/ping', async (request, reply) => {
-  return 'pong\n';
-});
+  fastify.use(cors());
 
-server.listen({ host: ADDRESS, port: parseInt(PORT, 10) }, (err, address) => {
-  if (err) {
-    console.error(err);
-    process.exit(1);
-  }
-  console.log(`Fastify server started on ${address}`);
-});
+  fastify.get('/', async (request, reply) => {
+    return { message: 'Hello world!' };
+  });
+
+  fastify.get('/ping', async (request, reply) => {
+    return 'pong\n';
+  });
+
+  return fastify;
+}
+
+build().then((fastify) =>
+  fastify.listen(
+    { host: ADDRESS, port: parseInt(PORT, 10) },
+    (err, address) => {
+      if (err) {
+        console.error(err);
+        process.exit(1);
+      }
+      console.log(`Fastify server listening on ${address}`);
+    }
+  )
+);

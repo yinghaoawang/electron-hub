@@ -15,6 +15,6 @@ interface Window {
   darkMode: {
     get: () => Promise<boolean>;
     toggle: () => Promise<boolean>;
-    system: () => Promise<boolean>;
+    reset: () => Promise<boolean>;
   };
 }
