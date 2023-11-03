@@ -13,7 +13,8 @@ interface Window {
     ping: () => Promise<boolean>;
   };
   darkMode: {
+    get: () => Promise<boolean>;
     toggle: () => Promise<boolean>;
-    system: () => Promise<void>;
+    system: () => Promise<boolean>;
   };
 }

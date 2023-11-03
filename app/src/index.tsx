@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './styles';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import MainLayout from './components/layouts/main-layout';
 import RootPage from './pages/root';
-import { ClerkProvider, SignedIn, SignedOut } from '@clerk/clerk-react';
+import {
+  ClerkProvider,
+  SignedIn,
+  SignedOut,
+  RedirectToSignIn
+} from '@clerk/clerk-react';
 import SignInPage from './pages/_auth/sign-in';
-import RedirectToSignIn from './components/auth/redirect-to-sign-in';
 import SignUpPage from './pages/_auth/sign-up';
 import AuthLayout from './components/layouts/auth-layout';
 import { UserProvider } from './contexts/UserContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { dark } from '@clerk/themes';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 if (!clerkPubKey) {
@@ -65,12 +71,32 @@ const router = createBrowserRouter([
   }
 ]);
 
-root.render(
-  <React.StrictMode>
-    <ClerkProvider publishableKey={clerkPubKey}>
+const Providers = () => {
+  const { theme } = useTheme();
+  let baseTheme;
+  if (theme == null || theme == 'dark') {
+    baseTheme = dark;
+  }
+
+  return (
+    <ClerkProvider
+      key={Math.random()}
+      signInUrl='/sign-in'
+      signUpUrl='/sign-up'
+      appearance={{ baseTheme }}
+      publishableKey={clerkPubKey}
+    >
       <UserProvider>
         <RouterProvider router={router} />
       </UserProvider>
     </ClerkProvider>
+  );
+};
+
+root.render(
+  <React.StrictMode>
+    <ThemeProvider>
+      <Providers />
+    </ThemeProvider>
   </React.StrictMode>
 );

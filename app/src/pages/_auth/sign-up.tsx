@@ -6,9 +6,6 @@ export default function SignUpPage() {
   return (
     <SignUp
       redirectUrl={location.pathname}
-      signInUrl='/sign-in'
-      routing='path'
-      path='/sign-up'
     />
   );
 }

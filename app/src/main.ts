@@ -41,6 +41,8 @@ app.on('window-all-closed', () => {
 app.whenReady().then(() => {
   ipcMain.handle('ping', () => 'pong');
 
+  ipcMain.handle('dark-mode:get', () => nativeTheme.shouldUseDarkColors);
+
   ipcMain.handle('dark-mode:toggle', () => {
     if (nativeTheme.shouldUseDarkColors) {
       nativeTheme.themeSource = 'light';
@@ -52,6 +54,7 @@ app.whenReady().then(() => {
 
   ipcMain.handle('dark-mode:system', () => {
     nativeTheme.themeSource = 'system';
+    return nativeTheme.shouldUseDarkColors;
   });
 
   createWindow();
