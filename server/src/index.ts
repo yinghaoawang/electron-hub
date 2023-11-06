@@ -2,24 +2,33 @@ import 'dotenv/config';
 
 import Fastify, { FastifyRequest } from 'fastify';
 import cors from 'cors';
-import { AuthObject, ClerkExpressRequireAuth } from '@clerk/clerk-sdk-node';
+import { AuthObject, ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
 
 const { ADDRESS = 'localhost', PORT = '8080' } = process.env;
 
 function getAuth(request: FastifyRequest) {
-  const auth = (request.raw as any)?.auth as AuthObject;
+  const auth = (request.raw as any)?.auth as AuthObject | undefined;
   return auth;
 }
 
 async function build() {
   const fastify = Fastify();
+  await fastify.register(require('@fastify/websocket'));
   await fastify.register(require('@fastify/express'));
 
   fastify.use(cors());
-  fastify.use(ClerkExpressRequireAuth());
+  fastify.use(ClerkExpressWithAuth());
+
+  fastify.get('/ws', { websocket: true }, (connection, req) => {
+    console.log(getAuth(req));
+    connection.socket.on('message', (message) => {
+      connection.socket.send(`Hello Fastify WebSockets: ${message}`);
+    });
+  });
 
   fastify.get('/', async (request, reply) => {
-    console.log(getAuth(request));
+    const auth = getAuth(request);
+    console.log(auth);
     return { message: 'Hello world!' };
   });
 
@@ -27,10 +36,6 @@ async function build() {
     return 'pong\n';
   });
 
-  return fastify;
-}
-
-build().then((fastify) =>
   fastify.listen(
     { host: ADDRESS, port: parseInt(PORT, 10) },
     (err, address) => {
@@ -40,5 +45,7 @@ build().then((fastify) =>
       }
       console.log(`Fastify server listening on ${address}`);
     }
-  )
-);
+  );
+}
+
+build();
