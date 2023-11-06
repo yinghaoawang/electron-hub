@@ -10,7 +10,7 @@
     "esModuleInterop": true,
     "noImplicitAny": true,
     "sourceMap": true,
-    "baseUrl": "src",
+    "baseUrl": "./src",
     "outDir": "out",
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -24,5 +24,10 @@
   ],
   "exclude": [
     "node_modules"
-  ]
+  ],
+  "paths": {
+    "shared/*": [
+      "../shared/*"
+    ]
+  }
 }

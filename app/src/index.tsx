@@ -16,6 +16,7 @@ import AuthLayout from './components/layouts/auth-layout';
 import { UserProvider } from './contexts/UserContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { dark } from '@clerk/themes';
+import { WebSocketProvider } from './contexts/WebSocketContext';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 if (!clerkPubKey) {
@@ -87,7 +88,9 @@ const Providers = () => {
       publishableKey={clerkPubKey}
     >
       <UserProvider>
-        <RouterProvider router={router} />
+        <WebSocketProvider>
+          <RouterProvider router={router} />
+        </WebSocketProvider>
       </UserProvider>
     </ClerkProvider>
   );

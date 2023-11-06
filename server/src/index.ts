@@ -1,8 +1,12 @@
 import 'dotenv/config';
 
+import fastifyIO from 'fastify-socket.io';
+
 import Fastify, { FastifyRequest } from 'fastify';
 import cors from 'cors';
 import { AuthObject, ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
+import { Server } from 'socket.io';
+import { AuthMessage } from 'shared/shared-types';
 
 const { ADDRESS = 'localhost', PORT = '8080' } = process.env;
 
@@ -13,27 +17,28 @@ function getAuth(request: FastifyRequest) {
 
 async function build() {
   const fastify = Fastify();
-  await fastify.register(require('@fastify/websocket'));
+  await fastify.register(fastifyIO, {
+    cors: {
+      origin: '*',
+      credentials: true
+    }
+  });
   await fastify.register(require('@fastify/express'));
 
   fastify.use(cors());
   fastify.use(ClerkExpressWithAuth());
 
-  fastify.get('/ws', { websocket: true }, (connection, req) => {
-    console.log(getAuth(req));
-    connection.socket.on('message', (message) => {
-      connection.socket.send(`Hello Fastify WebSockets: ${message}`);
+  fastify.ready().then(() => {
+    const io = (fastify as any).io as Server;
+    io.on('connection', (socket) => {
+      socket.on('auth', (message: AuthMessage) => {});
+      console.log('connected');
     });
   });
 
-  fastify.get('/', async (request, reply) => {
+  fastify.get('/', async (request, _reply) => {
     const auth = getAuth(request);
-    console.log(auth);
     return { message: 'Hello world!' };
-  });
-
-  fastify.get('/ping', async (request, reply) => {
-    return 'pong\n';
   });
 
   fastify.listen(
