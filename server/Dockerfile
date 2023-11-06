@@ -2,14 +2,14 @@
 FROM node:18
 
 # Set the working directory within the container
-WORKDIR /app-server
+WORKDIR /server
 
 # Copy the server application files into the container
 COPY . .
 
 # Install server dependencies
 RUN npm install
-RUN npm run build
+# RUN npm run build
 
 # Expose the port that your Fastify server will listen on
 EXPOSE 8080

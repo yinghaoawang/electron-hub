@@ -18,8 +18,8 @@ import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { dark } from '@clerk/themes';
 import { WebSocketProvider } from './contexts/WebSocketContext';
 
-const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-if (!clerkPubKey) {
+const { VITE_CLERK_PUBLISHABLE_KEY } = import.meta.env;
+if (!VITE_CLERK_PUBLISHABLE_KEY) {
   throw new Error('Missing Publishable Key');
 }
 
@@ -85,7 +85,7 @@ const Providers = () => {
       signInUrl='/sign-in'
       signUpUrl='/sign-up'
       appearance={{ baseTheme }}
-      publishableKey={clerkPubKey}
+      publishableKey={VITE_CLERK_PUBLISHABLE_KEY}
     >
       <UserProvider>
         <WebSocketProvider>

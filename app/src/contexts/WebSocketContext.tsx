@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { AuthMessage, BearerToken } from '../../../shared/shared-types';
 
+const { VITE_API_HOSTNAME } = import.meta.env;
 const WebSocketContext = createContext(null);
 
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
@@ -21,7 +22,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       Authorization: `Bearer ${accessToken}` as BearerToken
     };
 
-    socketWrapper.socket = io('localhost:8080');
+    socketWrapper.socket = io(VITE_API_HOSTNAME);
     getSocket().on('connect', () => {
       console.log('auth header sent');
       const authMessage: AuthMessage = { headers: authHeader };
