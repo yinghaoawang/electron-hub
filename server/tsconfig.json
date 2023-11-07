@@ -6,7 +6,8 @@
     "outDir": "./out",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true,    "skipLibCheck": true,
+    "strict": true,
+    "skipLibCheck": true,
     "types": [
       "@fastify/express",
     ],
@@ -15,5 +16,5 @@
         "../shared/*"
       ]
     }
-  }
+  },
 }

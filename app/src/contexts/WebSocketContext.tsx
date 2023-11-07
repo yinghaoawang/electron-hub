@@ -18,14 +18,14 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     if (accessToken == null) return;
     if (getSocket() != null) return;
 
-    const authHeader = {
+    const headers = {
       Authorization: `Bearer ${accessToken}` as BearerToken
     };
 
     socketWrapper.socket = io(VITE_API_HOSTNAME);
     getSocket().on('connect', () => {
       console.log('auth header sent');
-      const authMessage: AuthMessage = { headers: authHeader };
+      const authMessage: AuthMessage = { headers };
       getSocket().emit('auth', authMessage);
     });
   }, [accessToken]);

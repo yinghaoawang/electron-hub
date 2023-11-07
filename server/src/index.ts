@@ -6,13 +6,31 @@ import Fastify, { FastifyRequest } from 'fastify';
 import cors from 'cors';
 import { AuthObject, ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
 import { Server } from 'socket.io';
-import { AuthMessage } from 'shared/shared-types';
+import { AuthMessage, BearerToken } from 'shared/shared-types';
+import jwt from 'jsonwebtoken';
 
-const { ADDRESS = 'localhost', PORT = '8080' } = process.env;
+const {
+  ADDRESS = 'localhost',
+  PORT = '8080',
+  CLERK_PEM_PUBLIC_KEY
+} = process.env;
+
+if (!CLERK_PEM_PUBLIC_KEY) {
+  throw new Error('CLERK_PEM_KEY is not defined');
+}
 
 function getAuth(request: FastifyRequest) {
   const auth = (request.raw as any)?.auth as AuthObject | undefined;
   return auth;
+}
+
+function verifyToken(_token: BearerToken) {
+  const token = _token.replace('Bearer ', '');
+  try {
+    return jwt.verify(token, CLERK_PEM_PUBLIC_KEY as string);
+  } catch (err) {
+    return null;
+  }
 }
 
 async function build() {
@@ -31,7 +49,12 @@ async function build() {
   fastify.ready().then(() => {
     const io = (fastify as any).io as Server;
     io.on('connection', (socket) => {
-      socket.on('auth', (message: AuthMessage) => {});
+      socket.on('auth', (message: AuthMessage) => {
+        const sessToken = verifyToken(message.headers.Authorization);
+        if (!sessToken) {
+          console.error('Session token is invalid');
+        }
+      });
       console.log('connected');
     });
   });
