@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          BigInt   @id @default(autoincrement())
+  clerkId     String?  @unique
+  displayName String   @default("Anonymous")
+  role        Role     @default(USER)
+  posts       Post[]
+  profile     Profile?
+
+  @@index([clerkId])
+}
+
+model Profile {
+  id     BigInt @id @default(autoincrement())
+  bio    String
+  user   User   @relation(fields: [userId], references: [id])
+  userId BigInt @unique
+
+  @@index([userId])
+}
+
+model Post {
+  id        BigInt   @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  BigInt
+  content   String
+
+  @@index([authorId])
+}
+
+// Make sure this is in sync with /shared/shared-types.ts
+enum Role {
+  ADMIN
+  USER
+}

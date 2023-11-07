@@ -17,20 +17,23 @@ export interface Post {
 }
 
 export interface PostWithUser extends Post {
-  user: PublicUser;
+  user: User;
 }
 
-export interface PublicUser {
+export interface User {
   id: string;
   displayName: string;
-}
-
-export interface User extends PublicUser {
-  email: string;
+  role: Role;
 }
 
 export interface RoomIdAPIResData {
   roomData: RoomData;
   posts: PostWithUser[];
-  users: (PublicUser | User)[];
+  users: User[];
+}
+
+// Make sure this is in sync with /server/schema.prisma
+enum Role {
+  ADMIN,
+  USER
 }

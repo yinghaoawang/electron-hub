@@ -1,17 +1,16 @@
 import 'dotenv/config';
 
+import { PrismaClient } from '@prisma/client';
 import fastifyIO from 'fastify-socket.io';
-
 import Fastify, { FastifyRequest } from 'fastify';
 import cors from 'cors';
 import { AuthObject, ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
 import { Server } from 'socket.io';
 import {
   PostWithUser,
-  PublicUser,
+  User,
   RoomData,
-  RoomIdAPIResData,
-  User
+  RoomIdAPIResData
 } from 'shared/shared-types';
 import { v4 as uuidv4 } from 'uuid';
 import { createSocketListeners } from './socketListeners';
@@ -50,25 +49,13 @@ async function build() {
       };
 
       const posts: PostWithUser[] = [];
-      for (let i = 0; i < 50; i++) {
-        posts.push({
-          id: uuidv4(),
-          authorId: '1',
-          content: 'Hello world',
-          user: {
-            id: '1',
-            displayName: 'Test user'
-          }
-        });
-      }
 
-      const users: (PublicUser | User)[] = [
-        { id: '1', displayName: 'Test user' },
-        {
-          id: '2',
-          displayName: 'Michael Michael jordjackksonMichael jordjackkson'
-        }
-      ];
+      const prismaClient = new PrismaClient();
+      prismaClient.user.findMany({}).then((users) => {
+        console.log(users);
+      });
+
+      const users: User[] = [];
 
       const res: RoomIdAPIResData = { roomData, posts, users };
       reply.status(200).send(res);
