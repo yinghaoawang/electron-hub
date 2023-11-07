@@ -54,15 +54,33 @@ async function build() {
         name: 'Test room'
       };
 
-      const posts: PostWithUser[] = [];
-
       const prismaClient = new PrismaClient();
       const dbUsers = await prismaClient.user.findMany({});
-      console.log(dbUsers);
+      const dbPosts = await prismaClient.post.findMany({
+        include: {
+          author: {
+            select: {
+              id: true,
+              displayName: true,
+              role: true
+            }
+          }
+        }
+      });
+
       const users: User[] = dbUsers.map((user) => ({
         id: user.id,
         displayName: user.displayName,
         role: user.role as Role
+      }));
+      const posts: PostWithUser[] = dbPosts.map((post) => ({
+        id: post.id,
+        authorId: post.authorId,
+        content: post.content,
+        user: {
+          ...post.author,
+          role: post.author.role as Role
+        }
       }));
 
       const res: RoomIdAPIResData = { roomData, posts, users };
