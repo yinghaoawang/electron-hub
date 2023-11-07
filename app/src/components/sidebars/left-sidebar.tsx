@@ -41,7 +41,7 @@ export default function LeftSidebar() {
         d
       </div>
       <div className='bg-black/40 p-4 flex shrink-0 h-20 items-center gap-3'>
-        <UserButton appearance={{elements: {}}} afterSignOutUrl='/sign-in' />
+        <UserButton appearance={{ elements: {} }} afterSignOutUrl='/sign-in' />
         {user?.fullName}
       </div>
     </div>

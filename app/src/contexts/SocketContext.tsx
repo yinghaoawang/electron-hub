@@ -6,11 +6,14 @@ import { AuthMessage, BearerToken } from '../../../shared/shared-types';
 const { VITE_API_HOSTNAME } = import.meta.env;
 const WebSocketContext = createContext(null);
 
+const socketWrapper = {
+  socket: null as Socket
+};
+
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const [accessToken, setAccessToken] = useState<string>(null);
-  const socketWrapper = {
-    socket: null as Socket
-  };
+  const [isSocketLive, setIsSocketLive] = useState<boolean>(false);
+  const [isSocketConnecting, setIsSocketConnecting] = useState<boolean>(true);
   const getSocket = () => socketWrapper.socket;
   const { getToken, userId } = useAuth();
 
@@ -24,9 +27,25 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
     socketWrapper.socket = io(VITE_API_HOSTNAME);
     getSocket().on('connect', () => {
-      console.log('auth header sent');
+      setIsSocketConnecting(true);
+      const socket = getSocket();
       const authMessage: AuthMessage = { headers };
-      getSocket().emit('auth', authMessage);
+      socket.emit('auth', authMessage);
+      socket.on('auth-success', () => {
+        console.log('Successfully authenticated with WebSocket server');
+        setIsSocketLive(true);
+        setIsSocketConnecting(false);
+      });
+      socket.on('auth-failure', () => {
+        console.error('Failed to authenticate with WebSocket server');
+        setIsSocketLive(false);
+        setIsSocketConnecting(false);
+      });
+      socket.on('disconnect', () => {
+        console.log('Disconnected from WebSocket server');
+        setIsSocketLive(false);
+        setIsSocketConnecting(false);
+      });
     });
   }, [accessToken]);
 
@@ -42,12 +61,14 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   }, [userId]);
 
   return (
-    <WebSocketContext.Provider value={{ getSocket, setAccessToken }}>
+    <WebSocketContext.Provider
+      value={{ isSocketLive, isSocketConnecting, getSocket, setAccessToken }}
+    >
       {children}
     </WebSocketContext.Provider>
   );
 }
 
-export function useWebSocketContext() {
+export function useSocket() {
   return useContext(WebSocketContext);
 }

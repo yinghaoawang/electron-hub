@@ -16,15 +16,14 @@ import AuthLayout from './components/layouts/auth-layout';
 import { UserProvider } from './contexts/UserContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { dark } from '@clerk/themes';
-import { WebSocketProvider } from './contexts/WebSocketContext';
+import { WebSocketProvider } from './contexts/SocketContext';
 
 const { VITE_CLERK_PUBLISHABLE_KEY } = import.meta.env;
 if (!VITE_CLERK_PUBLISHABLE_KEY) {
   throw new Error('Missing Publishable Key');
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-const router = createBrowserRouter([
+const routes = [
   {
     path: '/sign-in/*',
     element: (
@@ -70,7 +69,10 @@ const router = createBrowserRouter([
       }
     ]
   }
-]);
+];
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+const router = createBrowserRouter(routes);
 
 const Providers = () => {
   const { theme } = useTheme();

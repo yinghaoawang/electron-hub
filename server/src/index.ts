@@ -4,10 +4,15 @@ import fastifyIO from 'fastify-socket.io';
 
 import Fastify, { FastifyRequest } from 'fastify';
 import cors from 'cors';
-import { AuthObject, ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
+import clerkClient, {
+  AuthObject,
+  ClerkExpressWithAuth
+} from '@clerk/clerk-sdk-node';
 import { Server } from 'socket.io';
 import { AuthMessage, BearerToken } from 'shared/shared-types';
 import jwt from 'jsonwebtoken';
+import { SessionToken, Socket } from 'types';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 
 const {
   ADDRESS = 'localhost',
@@ -48,12 +53,21 @@ async function build() {
 
   fastify.ready().then(() => {
     const io = (fastify as any).io as Server;
-    io.on('connection', (socket) => {
-      socket.on('auth', (message: AuthMessage) => {
-        const sessToken = verifyToken(message.headers.Authorization);
+    io.on('connection', (socket: Socket) => {
+      socket.on('auth', async (message: AuthMessage) => {
+        const sessToken = verifyToken(
+          message.headers.Authorization
+        ) as SessionToken | null;
         if (!sessToken) {
           console.error('Session token is invalid');
+          socket.emit('auth-failure');
+          return;
         }
+
+        const user = await clerkClient.users.getUser(sessToken.sub);
+        socket.user = user;
+
+        socket.emit('auth-success');
       });
       console.log('connected');
     });
@@ -64,6 +78,10 @@ async function build() {
     return { message: 'Hello world!' };
   });
 
+  return fastify;
+}
+
+build().then((fastify) => {
   fastify.listen(
     { host: ADDRESS, port: parseInt(PORT, 10) },
     (err, address) => {
@@ -74,6 +92,4 @@ async function build() {
       console.log(`Fastify server listening on ${address}`);
     }
   );
-}
-
-build();
+});
