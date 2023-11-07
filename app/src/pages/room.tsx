@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useFetch from '../hooks/useFetch';
 import { useParams } from 'react-router-dom';
 import { RoomIdAPIResData } from '../../../shared/shared-types';
@@ -10,6 +10,8 @@ export default function RoomPage() {
   const { roomId } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<RoomIdAPIResData>(null);
+  const [textInput, setTextInput] = useState('');
+  const postsContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,6 +27,13 @@ export default function RoomPage() {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const postsContainer = postsContainerRef.current;
+    if (!postsContainer) return;
+    postsContainer.scrollTop = postsContainer.scrollHeight;
+  }, [data]);
+
   return (
     <div className='flex'>
       <div className='grow'>
@@ -34,7 +43,10 @@ export default function RoomPage() {
             <div className='bg-neutral-700 h-12 p-4 flex items-center font-smibold text-xl'>
               {data.roomData.name}
             </div>
-            <div className='overflow-auto bg-neutral-800 py-4 flex flex-col gap-2'>
+            <div
+              ref={postsContainerRef}
+              className='overflow-auto bg-neutral-800 py-4 flex flex-col gap-2'
+            >
               {data.posts.map((post) => (
                 <div key={post.id} className='px-4'>
                   <span className='font-semibold mr-3'>
@@ -46,9 +58,34 @@ export default function RoomPage() {
             </div>
             <div className='flex'>
               <textarea
-                className='w-full h-24 resize-none p-4'
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    setTextInput('');
+                    const newPost = {
+                      id: Math.random().toString(),
+                      authorId: 'you',
+                      content: textInput,
+                      user: {
+                        id: 'you',
+                        displayName: 'You'
+                      }
+                    };
+                    setData({
+                      ...data,
+                      posts: [...data.posts, newPost]
+                    });
+                  }
+                }}
+                onChange={(e) => setTextInput(e.target.value)}
+                value={textInput}
+                rows={3}
+                className='w-full resize-none p-4 pr-[calc(40px+1rem)] bg-inherit'
                 placeholder='Enter your message'
               />
+              <div className='relative flex items-center'>
+                <button className='right-1 h-[40px] w-[40px] mr-2 absolute button !bg-green-500 flex items-center justify-center'>⍄</button>
+              </div>
             </div>
           </div>
         )}
