@@ -44,7 +44,7 @@ export default function LeftSidebar() {
         ))}
         d
       </div>
-      <div className='flex items-center shrink-0 h-20 bg-black/40 p-4 justify-between'>
+      <div className='user-tray flex items-center shrink-0 h-20 p-4 justify-between'>
         <div className='flex gap-3 items-center'>
           <UserButton
             appearance={{ elements: {} }}

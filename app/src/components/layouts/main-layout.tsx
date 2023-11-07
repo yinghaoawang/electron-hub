@@ -12,7 +12,7 @@ export default function MainLayout({
 }) {
   const { isSocketLive, isSocketConnecting } = useSocket();
   let socketStatusMessage;
-  if (isSocketConnecting) socketStatusMessage = 'Connecting...';
+  if (isSocketConnecting) socketStatusMessage = 'Connecting';
   else socketStatusMessage = isSocketLive ? 'Connected' : 'Disconnected';
 
   return (

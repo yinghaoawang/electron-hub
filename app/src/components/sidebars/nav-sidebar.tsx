@@ -24,7 +24,7 @@ export default function NavSidebar() {
         ].map((item, index) => (
           <div
             key={index}
-            className='h-12 w-12 bg-gray-200/10 flex items-center justify-center rounded-full'
+            className='nav-icon h-12 w-12 flex items-center justify-center rounded-full'
           >
             {item}
           </div>

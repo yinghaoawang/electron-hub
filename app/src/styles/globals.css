@@ -13,33 +13,69 @@ body {
 
 @media (prefers-color-scheme: dark) {
   body {
-    background: #333;
-    color: white;
+    @apply bg-neutral-700 text-gray-200;
   }
   .button {
     @apply bg-gray-900;
   }
+
   .nav-sidebar {
-    @apply bg-gray-900;
+    @apply bg-neutral-900;
   }
+  .nav-sidebar .nav-icon {
+    @apply bg-gray-200/10;
+  }
+
   .left-sidebar {
-    @apply bg-gray-600;
+    @apply bg-neutral-800;
+  }
+  .left-sidebar .user-tray {
+    @apply bg-black/60;
+  }
+
+  .right-sidebar {
+    @apply bg-neutral-800;
+  }
+
+  .page-content .room-topbar {
+    @apply bg-neutral-800/80;
+  }
+  .page-content .message-box {
+    @apply bg-neutral-800;
   }
 }
 
 @media (prefers-color-scheme: light) {
   body {
-    background: #ddd;
-    color: black;
+    @apply bg-neutral-100 text-gray-800;
   }
   .button {
     @apply bg-indigo-100;
   }
+
   .nav-sidebar {
-    @apply bg-gray-600;
+    @apply bg-neutral-100/40;
   }
+  .nav-sidebar .nav-icon {
+    @apply bg-gray-400/80 text-white;
+  }
+
   .left-sidebar {
-    @apply bg-gray-400;
+    @apply bg-neutral-100/40 border-r border-r-neutral-300/20;
+  }
+  .left-sidebar .user-tray {
+    @apply bg-neutral-200/60 border-t border-neutral-300/60
+  }
+
+  .right-sidebar {
+    @apply bg-neutral-100/40;
+  }
+
+  .page-content .room-topbar {
+    @apply bg-neutral-200/20;
+  }
+  .page-content .message-box {
+    @apply bg-neutral-200/50;
   }
 }
 

@@ -35,17 +35,17 @@ export default function RoomPage() {
   }, [data]);
 
   return (
-    <div className='flex'>
+    <div className='flex page-content'>
       <div className='grow'>
         {isLoading && <div>Loading...</div>}
         {!isLoading && data && (
           <div className='flex flex-col h-screen'>
-            <div className='bg-neutral-700 h-12 p-4 flex items-center font-smibold text-xl'>
+            <div className='room-topbar h-12 p-4 flex items-center font-smibold text-xl'>
               {data.roomData.name}
             </div>
             <div
               ref={postsContainerRef}
-              className='overflow-auto bg-neutral-800 py-4 flex flex-col gap-2'
+              className='overflow-auto py-4 flex flex-col gap-2'
             >
               {data.posts.map((post) => (
                 <div key={post.id} className='px-4'>
@@ -79,18 +79,17 @@ export default function RoomPage() {
                 }}
                 onChange={(e) => setTextInput(e.target.value)}
                 value={textInput}
-                rows={3}
-                className='w-full resize-none p-4 pr-[calc(40px+1rem)] bg-inherit'
+                className='message-box w-full resize-none p-4 h-28 pr-[calc(40px+1rem)] bg-inherit'
                 placeholder='Enter your message'
               />
               <div className='relative flex items-center'>
-                <button className='right-1 h-[40px] w-[40px] mr-2 absolute button !bg-green-500 flex items-center justify-center'>⍄</button>
+                <button className='!text-gray-200 right-1 h-[40px] w-[40px] mr-2 absolute button !bg-green-500 flex items-center justify-center'>⍄</button>
               </div>
             </div>
           </div>
         )}
       </div>
-      <div className='bg-gray-800 w-[200px] min-h-screen'>
+      <div className='right-sidebar w-[200px] min-h-screen'>
         {isLoading && <div>Loading...</div>}
         {!isLoading && data && (
           <div className='px-4 py-2 flex flex-col gap-2'>
