@@ -45,7 +45,7 @@ export default function RoomPage() {
             </div>
             <div
               ref={postsContainerRef}
-              className='overflow-auto py-4 flex flex-col gap-2'
+              className='overflow-auto py-4 flex flex-col gap-2 grow'
             >
               {data.posts.map((post) => (
                 <div key={post.id} className='px-4'>
