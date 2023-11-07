@@ -75,18 +75,12 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 const router = createBrowserRouter(routes);
 
 const Providers = () => {
-  const { theme } = useTheme();
-  let baseTheme;
-  if (theme == null || theme == 'dark') {
-    baseTheme = dark;
-  }
-
   return (
     <ClerkProvider
       key={Math.random()}
       signInUrl='/sign-in'
       signUpUrl='/sign-up'
-      appearance={{ baseTheme }}
+      appearance={{ baseTheme: dark }}
       publishableKey={VITE_CLERK_PUBLISHABLE_KEY}
     >
       <UserProvider>

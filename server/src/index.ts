@@ -12,7 +12,6 @@ import { Server } from 'socket.io';
 import { AuthMessage, BearerToken } from 'shared/shared-types';
 import jwt from 'jsonwebtoken';
 import { SessionToken, Socket } from 'types';
-import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 
 const {
   ADDRESS = 'localhost',
