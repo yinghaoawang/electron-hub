@@ -13,35 +13,35 @@ body {
 
 @media (prefers-color-scheme: dark) {
   body {
-    @apply bg-neutral-700 text-gray-200;
+    @apply bg-neutral-800 text-gray-200;
   }
   .button {
     @apply bg-gray-900;
   }
 
   .nav-sidebar {
-    @apply bg-neutral-900;
+    @apply bg-neutral-950;
   }
   .nav-sidebar .nav-icon {
     @apply bg-gray-200/10;
   }
 
   .left-sidebar {
-    @apply bg-neutral-800;
+    @apply bg-neutral-900;
   }
   .left-sidebar .user-tray {
-    @apply bg-black/60;
+    @apply bg-neutral-950/70;
   }
 
   .right-sidebar {
-    @apply bg-neutral-800;
+    @apply bg-neutral-900;
   }
 
   .page-content .room-topbar {
-    @apply bg-neutral-800/80;
+    @apply bg-neutral-950/60;
   }
   .page-content .message-box {
-    @apply bg-neutral-800;
+    @apply bg-neutral-900/60;
   }
 }
 
