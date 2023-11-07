@@ -6,13 +6,13 @@ export interface AuthMessage {
 }
 
 export interface RoomData {
-  id: string;
+  id: bigint;
   name: string;
 }
 
 export interface Post {
-  id: string;
-  authorId: string;
+  id: bigint;
+  authorId: bigint;
   content: string;
 }
 
@@ -21,7 +21,7 @@ export interface PostWithUser extends Post {
 }
 
 export interface User {
-  id: string;
+  id: bigint;
   displayName: string;
   role: Role;
 }
@@ -33,7 +33,7 @@ export interface RoomIdAPIResData {
 }
 
 // Make sure this is in sync with /server/schema.prisma
-enum Role {
-  ADMIN,
-  USER
+export enum Role {
+  ADMIN = 'ADMIN',
+  USER = 'USER'
 }

@@ -10,10 +10,16 @@ import {
   PostWithUser,
   User,
   RoomData,
-  RoomIdAPIResData
+  RoomIdAPIResData,
+  Role
 } from 'shared/shared-types';
-import { v4 as uuidv4 } from 'uuid';
 import { createSocketListeners } from './socketListeners';
+
+// Tells JSON.stringify to use BigInt.toString() instead of converting to an object
+(BigInt.prototype as any).toJSON = function () {
+  const int = Number.parseInt(this.toString());
+  return int ?? this.toString();
+};
 
 const { ADDRESS = 'localhost', PORT = '8080' } = process.env;
 
@@ -42,7 +48,7 @@ async function build() {
 
   fastify.get(
     '/room/:roomId',
-    (request: FastifyRequest<{ Params: { roomId: string } }>, reply) => {
+    async (request: FastifyRequest<{ Params: { roomId: bigint } }>, reply) => {
       const roomData: RoomData = {
         id: request.params.roomId,
         name: 'Test room'
@@ -51,11 +57,13 @@ async function build() {
       const posts: PostWithUser[] = [];
 
       const prismaClient = new PrismaClient();
-      prismaClient.user.findMany({}).then((users) => {
-        console.log(users);
-      });
-
-      const users: User[] = [];
+      const dbUsers = await prismaClient.user.findMany({});
+      console.log(dbUsers);
+      const users: User[] = dbUsers.map((user) => ({
+        id: user.id,
+        displayName: user.displayName,
+        role: user.role as Role
+      }));
 
       const res: RoomIdAPIResData = { roomData, posts, users };
       reply.status(200).send(res);

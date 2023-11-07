@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import useFetch from '../hooks/useFetch';
 import { useParams } from 'react-router-dom';
-import { RoomIdAPIResData } from '../../../shared/shared-types';
+import {
+  RoomIdAPIResData,
+  Role,
+  PostWithUser
+} from '../../../shared/shared-types';
 
 const { VITE_API_URL } = import.meta.env;
 
@@ -19,6 +23,7 @@ export default function RoomPage() {
         const res = await fetch(`${VITE_API_URL}/room/${roomId}`, {
           method: 'GET'
         });
+        console.log(res);
         setData(res);
       } catch (err) {
         console.error(err);
@@ -62,12 +67,13 @@ export default function RoomPage() {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     setTextInput('');
-                    const newPost = {
-                      id: Math.random().toString(),
-                      authorId: 'you',
+                    const newPost: PostWithUser = {
+                      id: BigInt(Math.floor(Math.random() * 100000)),
+                      authorId: BigInt(1000),
                       content: textInput,
                       user: {
-                        id: 'you',
+                        id: BigInt(1000),
+                        role: Role.USER,
                         displayName: 'You'
                       }
                     };
@@ -83,7 +89,9 @@ export default function RoomPage() {
                 placeholder='Enter your message'
               />
               <div className='relative flex items-center'>
-                <button className='!text-gray-200 right-1 h-[40px] w-[40px] mr-2 absolute button !bg-green-500 flex items-center justify-center'>⍄</button>
+                <button className='!text-gray-200 right-1 h-[40px] w-[40px] mr-2 absolute button !bg-green-500 flex items-center justify-center'>
+                  ⍄
+                </button>
               </div>
             </div>
           </div>
