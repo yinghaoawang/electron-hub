@@ -9,9 +9,18 @@ import clerkClient, {
   ClerkExpressWithAuth
 } from '@clerk/clerk-sdk-node';
 import { Server } from 'socket.io';
-import { AuthMessage, BearerToken } from 'shared/shared-types';
+import {
+  AuthMessage,
+  BearerToken,
+  PostWithUser,
+  PublicUser,
+  RoomData,
+  RoomIdAPIResData,
+  User
+} from 'shared/shared-types';
 import jwt from 'jsonwebtoken';
 import { SessionToken, Socket } from 'types';
+import { v4 as uuidv4 } from 'uuid';
 
 const {
   ADDRESS = 'localhost',
@@ -72,7 +81,38 @@ async function build() {
     });
   });
 
-  fastify.get('/', async (request, _reply) => {
+  fastify.get(
+    '/room/:roomId',
+    (request: FastifyRequest<{ Params: { roomId: string } }>, reply) => {
+      const roomData: RoomData = {
+        id: request.params.roomId,
+        name: 'Test room'
+      };
+
+      const posts: PostWithUser[] = [];
+      for (let i = 0; i < 50; i++) {
+        posts.push({
+          id: uuidv4(),
+          authorId: '1',
+          content: 'Hello world',
+          user: {
+            id: '1',
+            displayName: 'Test user'
+          }
+        });
+      }
+
+      const users: (PublicUser | User)[] = [
+        { id: '1', displayName: 'Test user' },
+        { id: '2', displayName: 'Michael Michael jordjackksonMichael jordjackkson' }
+      ];
+
+      const res: RoomIdAPIResData = { roomData, posts, users };
+      reply.status(200).send(res);
+    }
+  );
+
+  fastify.get('/', async (request, reply) => {
     const auth = getAuth(request);
     return { message: 'Hello world!' };
   });

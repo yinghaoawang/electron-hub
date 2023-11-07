@@ -29,20 +29,30 @@ export default function LeftSidebar() {
           'Ma Long',
           'Wang Hao',
           'Fan Zhendong',
-          'Zhang Jike',
+          'Zhang JikeZhang JikeZhang JikeZhang JikeZhang JikeZhang JikeZhang Jike',
           'Apps',
           'Google Calendar',
           'Journal'
         ].map((item, index) => (
-          <div key={index} className='my-1 py-1'>
+          <Link
+            to={`/room/${index}`}
+            key={index}
+            className='block my-1 py-1 truncate'
+          >
             {item}
-          </div>
+          </Link>
         ))}
         d
       </div>
-      <div className='bg-black/40 p-4 flex shrink-0 h-20 items-center gap-3'>
-        <UserButton appearance={{ elements: {} }} afterSignOutUrl='/sign-in' />
-        {user?.fullName}
+      <div className='flex items-center shrink-0 h-20 bg-black/40 p-4 justify-between'>
+        <div className='flex gap-3 items-center'>
+          <UserButton
+            appearance={{ elements: {} }}
+            afterSignOutUrl='/sign-in'
+          />
+          <span className='truncate'>{user?.fullName}</span>
+        </div>
+        <div>X</div>
       </div>
     </div>
   );

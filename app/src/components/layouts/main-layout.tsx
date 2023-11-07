@@ -19,7 +19,7 @@ export default function MainLayout({
     <div className='flex min-h-screen'>
       <div
         className={cn(
-          'absolute right-2 top-1 text-xs px-2 py-1 w-28 flex justify-center items-center rounded-full',
+          'absolute right-2 top-2 text-xs px-2 py-1 w-28 flex justify-center items-center rounded-full text-white',
           isSocketLive ? 'bg-green-500' : 'bg-red-500',
           isSocketConnecting && 'bg-yellow-500'
         )}

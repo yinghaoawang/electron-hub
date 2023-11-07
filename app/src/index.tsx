@@ -14,9 +14,10 @@ import SignInPage from './pages/_auth/sign-in';
 import SignUpPage from './pages/_auth/sign-up';
 import AuthLayout from './components/layouts/auth-layout';
 import { UserProvider } from './contexts/UserContext';
-import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { dark } from '@clerk/themes';
 import { WebSocketProvider } from './contexts/SocketContext';
+import RoomPage from './pages/room';
 
 const { VITE_CLERK_PUBLISHABLE_KEY } = import.meta.env;
 if (!VITE_CLERK_PUBLISHABLE_KEY) {
@@ -58,6 +59,10 @@ const routes = [
       {
         path: '/',
         element: <RootPage />
+      },
+      {
+        path: '/room/:roomId',
+        element: <RoomPage />
       },
       {
         path: '/about',
