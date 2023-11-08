@@ -9,7 +9,7 @@ import { Server } from 'socket.io';
 import {
   PostWithUser,
   User,
-  RoomData,
+  Room,
   RoomIdAPIResData,
   Role
 } from 'shared/shared-types';
@@ -49,41 +49,81 @@ async function build() {
   fastify.get(
     '/room/:roomId',
     async (request: FastifyRequest<{ Params: { roomId: bigint } }>, reply) => {
-      const roomData: RoomData = {
-        id: request.params.roomId,
-        name: 'Test room'
-      };
-
       const prismaClient = new PrismaClient();
-      const dbUsers = await prismaClient.user.findMany({});
-      const dbPosts = await prismaClient.post.findMany({
+      const dbRoom = await prismaClient.room.findUnique({
+        where: { id: request.params.roomId },
         include: {
-          author: {
-            select: {
-              id: true,
-              displayName: true,
-              role: true
+          users: true,
+          channels: {
+            include: {
+              posts: {
+                include: {
+                  author: true
+                }
+              }
             }
           }
         }
       });
 
-      const users: User[] = dbUsers.map((user) => ({
-        id: user.id,
-        displayName: user.displayName,
-        role: user.role as Role
-      }));
-      const posts: PostWithUser[] = dbPosts.map((post) => ({
-        id: post.id,
-        authorId: post.authorId,
-        content: post.content,
-        user: {
-          ...post.author,
-          role: post.author.role as Role
-        }
-      }));
+      if (dbRoom == null) {
+        console.error(`Room not found: ${dbRoom}`);
+        return reply.status(500).send();
+      }
 
-      const res: RoomIdAPIResData = { roomData, posts, users };
+      const room: Room = {
+        id: dbRoom.id,
+        name: dbRoom.name,
+        channels: dbRoom.channels.map((channel) => ({
+          id: channel.id,
+          name: channel.name,
+          posts: channel.posts.map((post) => ({
+            id: post.id,
+            authorId: post.authorId,
+            content: post.content,
+            user: {
+              id: post.author.id,
+              displayName: post.author.displayName,
+              role: post.author.role as Role
+            }
+          }))
+        })),
+        users: dbRoom.users.map((user) => ({
+          id: user.id,
+          displayName: user.displayName,
+          role: user.role as Role
+        }))
+      };
+
+      // const dbUsers = await prismaClient.user.findMany({});
+      // const dbPosts = await prismaClient.post.findMany({
+      //   include: {
+      //     author: {
+      //       select: {
+      //         id: true,
+      //         displayName: true,
+      //         role: true
+      //       }
+      //     }
+      //   }
+      // });
+
+      // const users: User[] = dbUsers.map((user) => ({
+      //   id: user.id,
+      //   displayName: user.displayName,
+      //   role: user.role as Role
+      // }));
+      // const posts: PostWithUser[] = dbPosts.map((post) => ({
+      //   id: post.id,
+      //   authorId: post.authorId,
+      //   content: post.content,
+      //   user: {
+      //     ...post.author,
+      //     role: post.author.role as Role
+      //   }
+      // }));
+
+      const res: RoomIdAPIResData = { room };
       reply.status(200).send(res);
     }
   );

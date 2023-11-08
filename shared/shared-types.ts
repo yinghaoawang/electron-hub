@@ -5,9 +5,17 @@ export interface AuthMessage {
   };
 }
 
-export interface RoomData {
+export interface Room {
   id: bigint;
   name: string;
+  channels: Channel[];
+  users: User[];
+}
+
+export interface Channel {
+  id: bigint;
+  name: string;
+  posts: PostWithUser[];
 }
 
 export interface Post {
@@ -27,9 +35,7 @@ export interface User {
 }
 
 export interface RoomIdAPIResData {
-  roomData: RoomData;
-  posts: PostWithUser[];
-  users: User[];
+  room: Room;
 }
 
 // Make sure this is in sync with /server/schema.prisma

@@ -35,7 +35,7 @@ export default function LeftSidebar() {
           'Journal'
         ].map((item, index) => (
           <Link
-            to={`/room/${index}`}
+            to={`/room/${'915327501576372225'}`}
             key={index}
             className='block my-1 py-1 truncate'
           >

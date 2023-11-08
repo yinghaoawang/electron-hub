@@ -1,11 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import useFetch from '../hooks/useFetch';
+import NotFound from './_error/error-page';
 import { useParams } from 'react-router-dom';
-import {
-  RoomIdAPIResData,
-  Role,
-  PostWithUser
-} from '../../../shared/shared-types';
+import { RoomIdAPIResData, PostWithUser } from '../../../shared/shared-types';
 
 const { VITE_API_URL } = import.meta.env;
 
@@ -13,6 +10,7 @@ export default function RoomPage() {
   const fetch = useFetch();
   const { roomId } = useParams();
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [data, setData] = useState<RoomIdAPIResData>(null);
   const [textInput, setTextInput] = useState('');
   const postsContainerRef = useRef<HTMLDivElement>(null);
@@ -23,10 +21,14 @@ export default function RoomPage() {
         const res = await fetch(`${VITE_API_URL}/room/${roomId}`, {
           method: 'GET'
         });
-        console.log(res);
+
+        if (res == null || res?.room == null)
+          throw new Error('Unable to fetch room data');
+
         setData(res);
       } catch (err) {
         console.error(err);
+        setError(err);
       }
       setIsLoading(false);
     };
@@ -42,22 +44,23 @@ export default function RoomPage() {
   return (
     <div className='flex page-content'>
       <div className='grow'>
+        {!isLoading && error && <NotFound />}
         {isLoading && <div>Loading...</div>}
         {!isLoading && data && (
           <div className='flex flex-col h-screen'>
             <div className='room-topbar h-12 p-4 flex items-center font-smibold text-xl'>
-              {data.roomData.name}
+              {data.room.name}
             </div>
             <div
               ref={postsContainerRef}
               className='overflow-auto py-4 flex flex-col gap-2 grow'
             >
-              {data.posts.map((post) => (
+              {data.room.channels?.[0].posts.map((post) => (
                 <div key={post.id} className='px-4'>
                   <span className='font-semibold mr-3'>
                     {post.user.displayName}
                   </span>
-                  {post.content}
+                  <span>{post.content}</span>
                 </div>
               ))}
             </div>
@@ -67,20 +70,20 @@ export default function RoomPage() {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     setTextInput('');
-                    const newPost: PostWithUser = {
-                      id: BigInt(Math.floor(Math.random() * 100000)),
-                      authorId: BigInt(1000),
-                      content: textInput,
-                      user: {
-                        id: BigInt(1000),
-                        role: Role.USER,
-                        displayName: 'You'
-                      }
-                    };
-                    setData({
-                      ...data,
-                      posts: [...data.posts, newPost]
-                    });
+                    // const newPost: PostWithUser = {
+                    //   id: BigInt(Math.floor(Math.random() * 100000)),
+                    //   authorId: BigInt(1000),
+                    //   content: textInput,
+                    //   user: {
+                    //     id: BigInt(1000),
+                    //     role: Role.USER,
+                    //     displayName: 'You'
+                    //   }
+                    // };
+                    // setData({
+                    //   ...data,
+                    //   posts: [...data.posts, newPost]
+                    // });
                   }
                 }}
                 onChange={(e) => setTextInput(e.target.value)}
@@ -97,12 +100,12 @@ export default function RoomPage() {
           </div>
         )}
       </div>
-      <div className='right-sidebar w-[200px] min-h-screen'>
+      <div className='right-sidebar w-[200px] min-h-screen shrink-0'>
         {isLoading && <div>Loading...</div>}
         {!isLoading && data && (
           <div className='px-4 py-2 flex flex-col gap-2'>
             <h2 className='text-xl font-semibold'>Users</h2>
-            {data.users.map((user) => (
+            {data.room.users.map((user) => (
               <div key={user.id} className='truncate'>
                 {user.displayName}
               </div>

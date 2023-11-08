@@ -6,8 +6,6 @@ import {
   SetStateAction
 } from 'react';
 
-export type Theme = 'dark' | 'light';
-
 type ThemeContent = {
   theme: Theme;
   setTheme: Dispatch<SetStateAction<Theme>>;
