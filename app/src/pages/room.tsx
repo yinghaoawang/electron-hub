@@ -1,48 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
-import useFetch from '../hooks/useFetch';
-import NotFound from './_error/error-page';
+import { useCurrentRoom } from '../contexts/CurrentRoomContext';
 import { useParams } from 'react-router-dom';
-import { RoomIdAPIResData, Room } from '../../../shared/shared-types';
-import { useRoomData } from '../contexts/RoomDataContext';
-
-const { VITE_API_URL } = import.meta.env;
 
 export default function RoomPage() {
-  const fetch = useFetch();
   const { roomId } = useParams();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [textInput, setTextInput] = useState('');
   const postsContainerRef = useRef<HTMLDivElement>(null);
-  const { setRoomData, roomDataArray, getRoomData } = useRoomData();
-  const [currentRoom, setCurrentRoom] = useState<Room>(null);
+  const { currentRoom, setCurrentRoomById } = useCurrentRoom();
+
+  if (roomId == null) {
+    throw new Error('Missing roomId');
+  }
 
   useEffect(() => {
-    const found = getRoomData(BigInt(roomId));
-    setCurrentRoom(found);
-  }, [roomDataArray]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res: RoomIdAPIResData = await fetch(
-          `${VITE_API_URL}/room/${roomId}`,
-          {
-            method: 'GET'
-          }
-        );
-
-        if (res == null || res?.room == null)
-          throw new Error('Unable to fetch room data');
-
-        setRoomData(res.room);
-      } catch (err) {
-        console.error(err);
-        setError(err);
-      }
-      setIsLoading(false);
-    };
-    fetchData();
+    setCurrentRoomById(BigInt(roomId));
   }, []);
 
   useEffect(() => {
@@ -54,9 +25,7 @@ export default function RoomPage() {
   return (
     <div className='flex page-content'>
       <div className='grow'>
-        {!isLoading && error && <NotFound />}
-        {isLoading && <div>Loading...</div>}
-        {!isLoading && currentRoom && (
+        {currentRoom && (
           <div className='flex flex-col h-screen'>
             <div className='room-topbar h-12 p-4 flex items-center font-smibold text-xl'>
               {currentRoom.name}
@@ -111,8 +80,7 @@ export default function RoomPage() {
         )}
       </div>
       <div className='right-sidebar w-[200px] min-h-screen shrink-0'>
-        {isLoading && <div>Loading...</div>}
-        {!isLoading && currentRoom && (
+        {currentRoom && (
           <div className='px-4 py-2 flex flex-col gap-2'>
             <h2 className='text-xl font-semibold'>Users</h2>
             {currentRoom.users.map((user) => (

@@ -11,7 +11,7 @@ const RoomDataContext = createContext<RoomDataContent>(null);
 export function RoomDataProvider({ children }: { children: React.ReactNode }) {
   const [roomDataArray, setRoomDataArray] = useState<Room[]>([]);
   const getRoomData = (id: bigint) => {
-    return roomDataArray.find((room) => BigInt(room.id) === id);
+    return roomDataArray.find((room) => BigInt(room.id) == id);
   };
   const setRoomData = (room: Room) => {
     const roomData = getRoomData(room.id);

@@ -38,6 +38,10 @@ export interface RoomIdAPIResData {
   room: Room;
 }
 
+export interface RoomsAPIResData {
+  rooms: Room[];
+}
+
 // Make sure this is in sync with /server/schema.prisma
 export enum Role {
   ADMIN = 'ADMIN',

@@ -11,7 +11,8 @@ import {
   User,
   Room,
   RoomIdAPIResData,
-  Role
+  Role,
+  RoomsAPIResData
 } from 'shared/shared-types';
 import { createSocketListeners } from './socketListeners';
 
@@ -25,6 +26,32 @@ const { ADDRESS = 'localhost', PORT = '8080' } = process.env;
 function getAuth(request: FastifyRequest) {
   const auth = (request.raw as any)?.auth as AuthObject | undefined;
   return auth;
+}
+
+function dbRoomToRoom (dbRoom: any): Room {
+  return {
+    id: dbRoom.id,
+    name: dbRoom.name,
+    channels: dbRoom.channels.map((channel: any) => ({
+      id: channel.id,
+      name: channel.name,
+      posts: channel.posts.map((post: any) => ({
+        id: post.id,
+        authorId: post.authorId,
+        content: post.content,
+        user: {
+          id: post.author.id,
+          displayName: post.author.displayName,
+          role: post.author.role as Role
+        }
+      }))
+    })),
+    users: dbRoom.users.map((user: User) => ({
+      id: user.id,
+      displayName: user.displayName,
+      role: user.role as Role
+    }))
+  };
 }
 
 async function build() {
@@ -44,6 +71,36 @@ async function build() {
     const io = (fastify as any).io as Server;
     createSocketListeners(io);
   });
+
+  fastify.get(
+    '/rooms',
+    async (request, reply) => {
+      const prismaClient = new PrismaClient();
+      const dbRooms = await prismaClient.room.findMany({
+        include: {
+          users: true,
+          channels: {
+            include: {
+              posts: {
+                include: {
+                  author: true
+                }
+              }
+            }
+          }
+        }
+      });
+
+      if (dbRooms == null) {
+        console.error(`Rooms could not be found.`);
+        return reply.status(500).send();
+      }
+      const rooms: Room[] = dbRooms.map((dbRoom) => dbRoomToRoom(dbRoom));
+
+      const res: RoomsAPIResData = { rooms };
+      reply.status(200).send(res);
+    }
+  );
 
   fastify.get(
     '/room/:roomId',
@@ -69,29 +126,7 @@ async function build() {
         console.error(`Room not found: ${dbRoom}`);
         return reply.status(500).send();
       }
-      const room: Room = {
-        id: dbRoom.id,
-        name: dbRoom.name,
-        channels: dbRoom.channels.map((channel) => ({
-          id: channel.id,
-          name: channel.name,
-          posts: channel.posts.map((post) => ({
-            id: post.id,
-            authorId: post.authorId,
-            content: post.content,
-            user: {
-              id: post.author.id,
-              displayName: post.author.displayName,
-              role: post.author.role as Role
-            }
-          }))
-        })),
-        users: dbRoom.users.map((user) => ({
-          id: user.id,
-          displayName: user.displayName,
-          role: user.role as Role
-        }))
-      };
+      const room: Room = dbRoomToRoom(dbRoom);
 
       const res: RoomIdAPIResData = { room };
       reply.status(200).send(res);
