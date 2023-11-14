@@ -18,6 +18,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { dark } from '@clerk/themes';
 import { WebSocketProvider } from './contexts/SocketContext';
 import RoomPage from './pages/room';
+import { RoomDataProvider } from './contexts/RoomDataContext';
 
 const { VITE_CLERK_PUBLISHABLE_KEY } = import.meta.env;
 if (!VITE_CLERK_PUBLISHABLE_KEY) {
@@ -89,9 +90,11 @@ const Providers = () => {
       publishableKey={VITE_CLERK_PUBLISHABLE_KEY}
     >
       <UserProvider>
-        <WebSocketProvider>
-          <RouterProvider router={router} />
-        </WebSocketProvider>
+        <RoomDataProvider>
+          <WebSocketProvider>
+            <RouterProvider router={router} />
+          </WebSocketProvider>
+        </RoomDataProvider>
       </UserProvider>
     </ClerkProvider>
   );

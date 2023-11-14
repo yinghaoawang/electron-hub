@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import useFetch from '../hooks/useFetch';
 import NotFound from './_error/error-page';
 import { useParams } from 'react-router-dom';
-import { RoomIdAPIResData, PostWithUser } from '../../../shared/shared-types';
+import { RoomIdAPIResData, Room } from '../../../shared/shared-types';
+import { useRoomData } from '../contexts/RoomDataContext';
 
 const { VITE_API_URL } = import.meta.env;
 
@@ -11,21 +12,30 @@ export default function RoomPage() {
   const { roomId } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [data, setData] = useState<RoomIdAPIResData>(null);
   const [textInput, setTextInput] = useState('');
   const postsContainerRef = useRef<HTMLDivElement>(null);
+  const { setRoomData, roomDataArray, getRoomData } = useRoomData();
+  const [currentRoom, setCurrentRoom] = useState<Room>(null);
+
+  useEffect(() => {
+    const found = getRoomData(BigInt(roomId));
+    setCurrentRoom(found);
+  }, [roomDataArray]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`${VITE_API_URL}/room/${roomId}`, {
-          method: 'GET'
-        });
+        const res: RoomIdAPIResData = await fetch(
+          `${VITE_API_URL}/room/${roomId}`,
+          {
+            method: 'GET'
+          }
+        );
 
         if (res == null || res?.room == null)
           throw new Error('Unable to fetch room data');
 
-        setData(res);
+        setRoomData(res.room);
       } catch (err) {
         console.error(err);
         setError(err);
@@ -39,23 +49,23 @@ export default function RoomPage() {
     const postsContainer = postsContainerRef.current;
     if (!postsContainer) return;
     postsContainer.scrollTop = postsContainer.scrollHeight;
-  }, [data]);
+  }, [currentRoom]);
 
   return (
     <div className='flex page-content'>
       <div className='grow'>
         {!isLoading && error && <NotFound />}
         {isLoading && <div>Loading...</div>}
-        {!isLoading && data && (
+        {!isLoading && currentRoom && (
           <div className='flex flex-col h-screen'>
             <div className='room-topbar h-12 p-4 flex items-center font-smibold text-xl'>
-              {data.room.name}
+              {currentRoom.name}
             </div>
             <div
               ref={postsContainerRef}
               className='overflow-auto py-4 flex flex-col gap-2 grow'
             >
-              {data.room.channels?.[0].posts.map((post) => (
+              {currentRoom.channels?.[0].posts.map((post) => (
                 <div key={post.id} className='px-4'>
                   <span className='font-semibold mr-3'>
                     {post.user.displayName}
@@ -102,10 +112,10 @@ export default function RoomPage() {
       </div>
       <div className='right-sidebar w-[200px] min-h-screen shrink-0'>
         {isLoading && <div>Loading...</div>}
-        {!isLoading && data && (
+        {!isLoading && currentRoom && (
           <div className='px-4 py-2 flex flex-col gap-2'>
             <h2 className='text-xl font-semibold'>Users</h2>
-            {data.room.users.map((user) => (
+            {currentRoom.users.map((user) => (
               <div key={user.id} className='truncate'>
                 {user.displayName}
               </div>

@@ -1,21 +1,34 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  Dispatch,
-  SetStateAction
-} from 'react';
+import { createContext, useContext, useState } from 'react';
 import { Room } from '../../../shared/shared-types';
 
 type RoomDataContent = {
-  roomData: Room;
-  setRoomData: Dispatch<SetStateAction<Room>>;
+  roomDataArray: Room[];
+  getRoomData: (id: bigint) => Room;
+  setRoomData: (room: Room) => void;
 };
 
 const RoomDataContext = createContext<RoomDataContent>(null);
 export function RoomDataProvider({ children }: { children: React.ReactNode }) {
-  const [roomData, setRoomData] = useState<Room>(null);
-  const value = { roomData, setRoomData };
+  const [roomDataArray, setRoomDataArray] = useState<Room[]>([]);
+  const getRoomData = (id: bigint) => {
+    return roomDataArray.find((room) => BigInt(room.id) === id);
+  };
+  const setRoomData = (room: Room) => {
+    const roomData = getRoomData(room.id);
+    if (roomData == null) {
+      setRoomDataArray([...roomDataArray, room]);
+    } else {
+      const roomDataArrayCopy = [...roomDataArray];
+      const roomIndex = roomDataArrayCopy.findIndex(
+        (room) => room.id === room.id
+      );
+      roomDataArrayCopy[roomIndex] = room;
+      setRoomDataArray(roomDataArrayCopy);
+    }
+  };
+
+  const value = { getRoomData, setRoomData, roomDataArray };
+
   return (
     <RoomDataContext.Provider value={value}>
       {children}

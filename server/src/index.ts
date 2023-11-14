@@ -17,8 +17,7 @@ import { createSocketListeners } from './socketListeners';
 
 // Tells JSON.stringify to use BigInt.toString() instead of converting to an object
 (BigInt.prototype as any).toJSON = function () {
-  const int = Number.parseInt(this.toString());
-  return int ?? this.toString();
+  return this.toString();
 };
 
 const { ADDRESS = 'localhost', PORT = '8080' } = process.env;
@@ -70,7 +69,6 @@ async function build() {
         console.error(`Room not found: ${dbRoom}`);
         return reply.status(500).send();
       }
-
       const room: Room = {
         id: dbRoom.id,
         name: dbRoom.name,
@@ -94,34 +92,6 @@ async function build() {
           role: user.role as Role
         }))
       };
-
-      // const dbUsers = await prismaClient.user.findMany({});
-      // const dbPosts = await prismaClient.post.findMany({
-      //   include: {
-      //     author: {
-      //       select: {
-      //         id: true,
-      //         displayName: true,
-      //         role: true
-      //       }
-      //     }
-      //   }
-      // });
-
-      // const users: User[] = dbUsers.map((user) => ({
-      //   id: user.id,
-      //   displayName: user.displayName,
-      //   role: user.role as Role
-      // }));
-      // const posts: PostWithUser[] = dbPosts.map((post) => ({
-      //   id: post.id,
-      //   authorId: post.authorId,
-      //   content: post.content,
-      //   user: {
-      //     ...post.author,
-      //     role: post.author.role as Role
-      //   }
-      // }));
 
       const res: RoomIdAPIResData = { room };
       reply.status(200).send(res);
