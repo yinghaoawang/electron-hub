@@ -21,7 +21,7 @@ import { createSocketListeners } from './socketListeners';
   return this.toString();
 };
 
-const { ADDRESS = 'localhost', PORT = '8080' } = process.env;
+const { ADDRESS = 'localhost', PORT = '8078' } = process.env;
 
 function getAuth(request: FastifyRequest) {
   const auth = (request.raw as any)?.auth as AuthObject | undefined;
