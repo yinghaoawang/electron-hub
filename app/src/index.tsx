@@ -7,7 +7,12 @@ import RootPage from './pages/root';
 import SignInPage from './pages/_auth/sign-in';
 import SignUpPage from './pages/_auth/sign-up';
 import AuthLayout from './components/layouts/auth-layout';
-import { UserProvider } from './contexts/UserContext';
+import {
+  AuthProvider,
+  IsLoggedIn,
+  IsLoggedOut,
+  RedirectToSignIn
+} from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { WebSocketProvider } from './contexts/SocketContext';
 import RoomPage from './pages/room';
@@ -34,9 +39,16 @@ const routes = [
   {
     path: '/',
     element: (
-      <MainLayout>
-        <Outlet />
-      </MainLayout>
+      <>
+        <IsLoggedIn>
+          <MainLayout>
+            <Outlet />
+          </MainLayout>
+        </IsLoggedIn>
+        <IsLoggedOut>
+          <RedirectToSignIn />
+        </IsLoggedOut>
+      </>
     ),
     children: [
       {
@@ -65,7 +77,7 @@ const router = createHashRouter(routes);
 const Providers = () => {
   return (
     <ThemeProvider>
-      <UserProvider>
+      <AuthProvider>
         <RoomDataProvider>
           <CurrentRoomProvider>
             <WebSocketProvider>
@@ -73,7 +85,7 @@ const Providers = () => {
             </WebSocketProvider>
           </CurrentRoomProvider>
         </RoomDataProvider>
-      </UserProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 };

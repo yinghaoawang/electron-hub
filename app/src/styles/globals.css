@@ -64,7 +64,7 @@ body {
     @apply bg-neutral-100/40 border-r border-r-neutral-300/20;
   }
   .left-sidebar .user-tray {
-    @apply bg-neutral-200/60 border-t border-neutral-300/60
+    @apply bg-neutral-200/60 border-t border-neutral-300/60;
   }
 
   .right-sidebar {
@@ -77,6 +77,10 @@ body {
   .page-content .message-box {
     @apply bg-neutral-200/50;
   }
+}
+
+input.form-input {
+  @apply rounded-lg px-4 py-2;
 }
 
 .button {

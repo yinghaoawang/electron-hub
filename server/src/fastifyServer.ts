@@ -8,6 +8,11 @@ import {
   Role,
   RoomsAPIResData
 } from 'shared/shared-types';
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
+} from 'firebase/auth';
 
 // Tells JSON.stringify to use BigInt.toString() instead of converting to an object
 (BigInt.prototype as any).toJSON = function () {
@@ -45,6 +50,38 @@ export async function buildFastifyServer() {
   await fastify.register(require('@fastify/express'));
 
   fastify.use(cors());
+
+  fastify.post('/signup', async (request, reply) => {
+    try {
+      const { email, password } = request.body as {
+        email: string;
+        password: string;
+      };
+      const auth = getAuth();
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      reply.status(200).send({ user });
+    } catch (error) {
+      console.error(error);
+      reply.status(500).send({ error });
+    }
+  });
+
+  fastify.get('/me', async (request, reply) => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user == null) {
+      console.error(`User not found.`);
+      return reply.status(500).send();
+    }
+    reply.status(200).send({ user });
+  });
+
+  fastify.post('/login', async (request, reply) => {});
 
   fastify.get('/rooms', async (request, reply) => {
     const prismaClient = new PrismaClient();
@@ -110,4 +147,3 @@ export async function buildFastifyServer() {
 
   return fastify;
 }
-

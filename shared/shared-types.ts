@@ -28,6 +28,10 @@ export interface PostWithUser extends Post {
   user: User;
 }
 
+export interface DetailedUser extends User {
+  email: string;
+}
+
 export interface User {
   id: bigint;
   displayName: string;
