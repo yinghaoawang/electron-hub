@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron';
+import { app, BrowserWindow, ipcMain, nativeTheme, session } from 'electron';
 import path from 'path';
 
 import { updateElectronApp } from 'update-electron-app';
@@ -30,6 +30,14 @@ const createWindow = () => {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+
+  // mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
+  //   (details, callback) => {
+  //     details.requestHeaders['User-Agent'] = 'YourCustomUserAgent';
+  //     details.requestHeaders['Origin'] = 'https://localhost:5173';
+  //     callback({ cancel: false, requestHeaders: details.requestHeaders });
+  //   }
+  // );
 };
 
 // Quit when all windows are closed, except on macOS. There, it's common

@@ -4,18 +4,11 @@ import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import MainLayout from './components/layouts/main-layout';
 import RootPage from './pages/root';
-import {
-  ClerkProvider,
-  SignedIn,
-  SignedOut,
-  RedirectToSignIn
-} from '@clerk/clerk-react';
 import SignInPage from './pages/_auth/sign-in';
 import SignUpPage from './pages/_auth/sign-up';
 import AuthLayout from './components/layouts/auth-layout';
 import { UserProvider } from './contexts/UserContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { dark } from '@clerk/themes';
 import { WebSocketProvider } from './contexts/SocketContext';
 import RoomPage from './pages/room';
 import { RoomDataProvider } from './contexts/RoomDataContext';
@@ -46,16 +39,9 @@ const routes = [
   {
     path: '/',
     element: (
-      <>
-        <SignedIn>
-          <MainLayout>
-            <Outlet />
-          </MainLayout>
-        </SignedIn>
-        <SignedOut>
-          <RedirectToSignIn />
-        </SignedOut>
-      </>
+      <MainLayout>
+        <Outlet />
+      </MainLayout>
     ),
     children: [
       {
@@ -83,13 +69,7 @@ const router = createBrowserRouter(routes);
 
 const Providers = () => {
   return (
-    <ClerkProvider
-      key={Math.random()}
-      signInUrl='/sign-in'
-      signUpUrl='/sign-up'
-      appearance={{ baseTheme: dark }}
-      publishableKey={VITE_CLERK_PUBLISHABLE_KEY}
-    >
+    <ThemeProvider>
       <UserProvider>
         <RoomDataProvider>
           <CurrentRoomProvider>
@@ -99,14 +79,12 @@ const Providers = () => {
           </CurrentRoomProvider>
         </RoomDataProvider>
       </UserProvider>
-    </ClerkProvider>
+    </ThemeProvider>
   );
 };
 
 root.render(
   <React.StrictMode>
-    <ThemeProvider>
-      <Providers />
-    </ThemeProvider>
+    <Providers />
   </React.StrictMode>
 );

@@ -1,9 +1,7 @@
-import { UserButton } from '@clerk/clerk-react';
-import { useUser } from '../../contexts/UserContext';
+
 import { useCurrentRoom } from '../../contexts/CurrentRoomContext';
 
 export default function LeftSidebar() {
-  const { user } = useUser();
   const { currentRoom } = useCurrentRoom();
 
   return (
@@ -18,11 +16,8 @@ export default function LeftSidebar() {
       </div>
       <div className='user-tray flex items-center shrink-0 h-20 p-4 justify-between'>
         <div className='flex gap-3 items-center'>
-          <UserButton
-            appearance={{ elements: {} }}
-            afterSignOutUrl='/sign-in'
-          />
-          <span className='truncate'>{user?.fullName}</span>
+          <>User button</>
+          <span className='truncate'>{'user?.fullName'}</span>
         </div>
         <div>X</div>
       </div>

@@ -1,4 +1,3 @@
-import { useAuth } from '@clerk/clerk-react';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import {
@@ -23,7 +22,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const [isSocketConnecting, setIsSocketConnecting] = useState<boolean>(true);
   const getSocket = () => socketWrapper.socket;
   const { setRoomData } = useRoomData();
-  const { getToken, userId } = useAuth();
   const fetch = useFetch();
 
   useEffect(() => {
@@ -82,16 +80,16 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     });
   }, [accessToken]);
 
-  useEffect(() => {
-    if (userId == null) return;
+  // useEffect(() => {
+  //   if (userId == null) return;
 
-    const fetchAccessToken = async () => {
-      const token = await getToken();
-      setAccessToken(token);
-    };
+  //   const fetchAccessToken = async () => {
+  //     const token = await getToken();
+  //     setAccessToken(token);
+  //   };
 
-    fetchAccessToken();
-  }, [userId]);
+  //   fetchAccessToken();
+  // }, [userId]);
 
   return (
     <WebSocketContext.Provider
