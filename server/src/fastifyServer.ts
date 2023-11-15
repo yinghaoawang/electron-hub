@@ -8,7 +8,8 @@ import {
   Role,
   RoomsAPIResData,
   LoginAPIResData,
-  DetailedUser
+  DetailedUser,
+  SignupAPIResData
 } from 'shared/shared-types';
 import {
   getAuth,
@@ -53,36 +54,6 @@ export async function buildFastifyServer() {
 
   fastify.use(cors());
 
-  fastify.post('/signup', async (request, reply) => {
-    try {
-      const { email, password } = request.body as {
-        email: string;
-        password: string;
-      };
-      const auth = getAuth();
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-      reply.status(200).send({ user });
-    } catch (error) {
-      console.error(error);
-      reply.status(500).send({ error });
-    }
-  });
-
-  fastify.get('/me', async (request, reply) => {
-    const auth = getAuth();
-    const user = auth.currentUser;
-    if (user == null) {
-      console.error(`User not found.`);
-      return reply.status(500).send();
-    }
-    reply.status(200).send({ user });
-  });
-
   fastify.post('/login', async (request, reply) => {
     try {
       const { email, password } = JSON.parse(request.body as string) as {
@@ -101,7 +72,8 @@ export async function buildFastifyServer() {
         password
       );
 
-      if (userCredential.user == null) throw new Error('Firebase user not found.');
+      if (userCredential.user == null)
+        throw new Error('Firebase user not found.');
 
       const dbUser = await new PrismaClient().user.findUnique({
         where: { email: userCredential.user.email as string }
@@ -116,6 +88,52 @@ export async function buildFastifyServer() {
         email: dbUser.email
       };
       const res: LoginAPIResData = { user };
+      reply.status(200).send({ user });
+    } catch (error) {
+      reply.status(500).send({ error });
+    }
+  });
+
+  fastify.post('/signup', async (request, reply) => {
+    try {
+      const { displayName, email, password } = JSON.parse(
+        request.body as string
+      ) as {
+        displayName?: string;
+        email?: string;
+        password?: string;
+      };
+      if (displayName == null || email == null || password == null) {
+        return reply
+          .status(400)
+          .send({ error: 'Required fields not provided.' });
+      }
+      const auth = getAuth();
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      if (userCredential.user == null)
+        throw new Error('Firebase user not found after creation.');
+
+      const dbUser = await new PrismaClient().user.create({
+        data: {
+          displayName,
+          email
+        }
+      });
+
+      if (dbUser == null) throw new Error('Db user creation failed.');
+
+      const user: DetailedUser = {
+        id: dbUser.id,
+        displayName: dbUser.displayName,
+        role: dbUser.role as Role,
+        email: dbUser.email
+      };
+      const res: SignupAPIResData = { user };
       reply.status(200).send({ user });
     } catch (error) {
       reply.status(500).send({ error });

@@ -42,6 +42,10 @@ export interface LoginAPIResData {
   user: DetailedUser;
 }
 
+export interface SignupAPIResData {
+  user: DetailedUser;
+}
+
 export interface RoomIdAPIResData {
   room: Room;
 }

@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DetailedUser } from '../../../shared/shared-types';
+import {
+  DetailedUser,
+  LoginAPIResData,
+  SignupAPIResData
+} from '../../../shared/shared-types';
 import { sendNotification } from '../_lib/notifications';
 
 const { VITE_API_URL } = import.meta.env;
@@ -10,18 +14,61 @@ type AuthContent = {
   isLoading: boolean;
   authUser: DetailedUser | null;
   getAuthToken: () => string | null;
-  login: (email: string, password: string) => Promise<void>;
+  logIn: (
+    email: string,
+    password: string,
+    onSuccess?: () => unknown,
+    onError?: () => unknown
+  ) => Promise<void>;
+  signUp: (
+    displayName: string,
+    email: string,
+    password: string,
+    onSuccess?: () => unknown,
+    onError?: () => unknown
+  ) => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContent>(null);
 
+const parseFirebaseErrorCode = (code: string) => {
+  if (code === 'auth/invalid-email') {
+    return 'Invalid email';
+  }
+  if (code === 'auth/invalid-login-credentials') {
+    return 'Invalid credentials';
+  }
+
+  console.log(`Unhandled error code: ${code}`);
+
+  if (code.startsWith('auth/')) {
+    let parsed = code.replace('auth/', '').replace(/-/g, ' ');
+    parsed = parsed.charAt(0).toUpperCase() + parsed.slice(1);
+    return parsed;
+  }
+  return null;
+};
+
+const getAuthErrorMessage = (error: any) => {
+  return (
+    error.message ||
+    (error?.code && parseFirebaseErrorCode(error.code)) ||
+    'Something went wrong'
+  );
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [authUser, setAuthUser] = useState<null>(null);
+  const [authUser, setAuthUser] = useState<DetailedUser>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [authToken, setAuthToken] = useState<string | null>(null);
   const isLoggedIn = () => authUser != null;
   const getAuthToken = () => authToken;
-  const login = async (email: string, password: string) => {
+  const logIn = async (
+    email: string,
+    password: string,
+    onSuccess?: () => unknown,
+    onError?: () => unknown
+  ) => {
     try {
       const res = await fetch(`${VITE_API_URL}/login`, {
         method: 'POST',
@@ -29,22 +76,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       if (!res.ok) {
         const { error } = await res.json();
-        let errorMessage = error.message || 'Something went wrong';
-        if (error.code === 'auth/invalid-login-credentials') {
-          errorMessage = 'Invalid credentials';
-        } else {
-          console.log(`Unhandled error code: ${error.code}`);
-        }
-        sendNotification('Login failed', errorMessage);
+        sendNotification('Login failed', getAuthErrorMessage(error));
+        if (onError) onError();
       } else {
-        console.log('logged in', res);
+        const parsedRes: LoginAPIResData = await res.json();
+        setAuthUser(parsedRes.user);
+        if (onSuccess) onSuccess();
       }
-    } catch (err) {
-      console.error('caught error in sign in', err);
+    } catch (error) {
+      sendNotification('Login failed', getAuthErrorMessage(error));
+      if (onError) onError();
     }
   };
 
-  const value = { isLoggedIn, isLoading, authUser, getAuthToken, login };
+  const signUp = async (
+    displayName: string,
+    email: string,
+    password: string,
+    onSuccess?: () => unknown,
+    onError?: () => unknown
+  ) => {
+    try {
+      const res = await fetch(`${VITE_API_URL}/signup`, {
+        method: 'POST',
+        body: JSON.stringify({ displayName, email, password })
+      });
+      if (!res.ok) {
+        const { error } = await res.json();
+        sendNotification('Signup failed', getAuthErrorMessage(error));
+        if (onError) onError();
+      } else {
+        const parsedRes: SignupAPIResData = await res.json();
+        setAuthUser(parsedRes.user);
+        if (onSuccess) onSuccess();
+      }
+    } catch (error) {
+      sendNotification('Signup failed', getAuthErrorMessage(error));
+      if (onError) onError();
+    }
+  };
+
+  const value = {
+    isLoggedIn,
+    isLoading,
+    authUser,
+    getAuthToken,
+    logIn,
+    signUp
+  };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

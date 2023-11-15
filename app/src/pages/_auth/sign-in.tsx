@@ -1,11 +1,12 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { cn } from '../../_lib/utils';
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function SignInPage() {
-  const { login } = useAuth();
+  const { logIn } = useAuth();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const {
     register,
@@ -20,7 +21,9 @@ export default function SignInPage() {
     password: string;
   }) => {
     setIsLoading(true);
-    await login(email, password);
+    await logIn(email, password, () => {
+      navigate('/');
+    });
     setIsLoading(false);
   };
 
