@@ -1,7 +1,7 @@
 import React from 'react';
 import './styles';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
+import { createHashRouter, RouterProvider, Outlet } from 'react-router-dom';
 import MainLayout from './components/layouts/main-layout';
 import RootPage from './pages/root';
 import SignInPage from './pages/_auth/sign-in';
@@ -65,7 +65,7 @@ const routes = [
 ];
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-const router = createBrowserRouter(routes);
+const router = createHashRouter(routes);
 
 const Providers = () => {
   return (
