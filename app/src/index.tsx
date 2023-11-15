@@ -14,11 +14,6 @@ import RoomPage from './pages/room';
 import { RoomDataProvider } from './contexts/RoomDataContext';
 import { CurrentRoomProvider } from './contexts/CurrentRoomContext';
 
-const { VITE_CLERK_PUBLISHABLE_KEY } = import.meta.env;
-if (!VITE_CLERK_PUBLISHABLE_KEY) {
-  throw new Error('Missing Publishable Key');
-}
-
 const routes = [
   {
     path: '/sign-in/*',

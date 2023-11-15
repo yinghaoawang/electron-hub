@@ -41,7 +41,7 @@ model Post {
 
 model User {
   id          BigInt   @id @default(autoincrement())
-  clerkId     String?  @unique
+  email       String   @unique
   displayName String   @default("Anonymous")
   role        Role     @default(USER)
   createdAt   DateTime @default(now())
@@ -50,7 +50,7 @@ model User {
   posts       Post[]
   rooms       Room[]   @relation("RoomToUser")
 
-  @@index([clerkId])
+  @@index([email])
 }
 
 model Profile {
