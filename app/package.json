@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": ".vite/build/main.js",
+  "repository": {
+    "url": "https://github.com/yinghaoawang/electron-hub"
+  },
   "scripts": {
     "start": "electron-forge start",
     "dev": "electron-forge start",
@@ -51,6 +54,7 @@
     "react-dom": "^18.2.0",
     "react-use-websocket": "^4.5.0",
     "socket.io-client": "^4.7.2",
-    "tailwind-merge": "^2.0.0"
+    "tailwind-merge": "^2.0.0",
+    "update-electron-app": "^3.0.0"
   }
 }
