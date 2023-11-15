@@ -9,7 +9,7 @@ import {
 import { useRoomData } from './RoomDataContext';
 import useFetch from '../hooks/useFetch';
 
-const { VITE_API_HOSTNAME, VITE_API_URL } = import.meta.env;
+const { VITE_SOCKET_URL, VITE_API_URL } = import.meta.env;
 
 const WebSocketContext = createContext(null);
 
@@ -34,7 +34,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       Authorization: `Bearer ${accessToken}` as BearerToken
     };
 
-    socketWrapper.socket = io(VITE_API_HOSTNAME);
+    socketWrapper.socket = io(VITE_SOCKET_URL, {});
     getSocket().on('connect', () => {
       setIsSocketConnecting(true);
       const socket = getSocket();
