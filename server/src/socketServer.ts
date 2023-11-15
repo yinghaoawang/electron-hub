@@ -14,6 +14,7 @@ export function buildSocketServer() {
 
     const io = new Server(httpServer, {
     path: SOCKET_PATH,
+    transports: ['websocket'],
     cors: { origin: '*' }
   });
   createSocketListeners(io);

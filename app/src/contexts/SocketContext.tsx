@@ -34,7 +34,10 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       Authorization: `Bearer ${accessToken}` as BearerToken
     };
 
-    socketWrapper.socket = io(VITE_SOCKET_URL, { path: VITE_SOCKET_PATH });
+    socketWrapper.socket = io(VITE_SOCKET_URL, {
+      path: VITE_SOCKET_PATH,
+      transports: ['websocket']
+    });
     getSocket().on('connect', () => {
       setIsSocketConnecting(true);
       const socket = getSocket();
