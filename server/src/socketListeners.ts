@@ -1,6 +1,5 @@
 import { SessionToken, Socket } from 'types';
 import { AuthMessage, BearerToken } from 'shared/shared-types';
-import clerkClient from '@clerk/clerk-sdk-node';
 import jwt from 'jsonwebtoken';
 import { Server } from 'socket.io';
 
@@ -32,8 +31,8 @@ export function createSocketListeners(io: Server) {
         return;
       }
 
-      const user = await clerkClient.users.getUser(sessToken.sub);
-      socket.user = user;
+      // const user = await clerkClient.users.getUser(sessToken.sub);
+      // socket.user = user;
 
       socket.emit('auth-success');
     });

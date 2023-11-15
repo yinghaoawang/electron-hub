@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import Fastify, { FastifyRequest } from 'fastify';
 import cors from 'cors';
-import { AuthObject, ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
 import {
   User,
   Room,
@@ -14,11 +13,6 @@ import {
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
 };
-
-function getAuth(request: FastifyRequest) {
-  const auth = (request.raw as any)?.auth as AuthObject | undefined;
-  return auth;
-}
 
 function dbRoomToRoom(dbRoom: any): Room {
   return {
@@ -51,7 +45,6 @@ export async function buildFastifyServer() {
   await fastify.register(require('@fastify/express'));
 
   fastify.use(cors());
-  fastify.use(ClerkExpressWithAuth());
 
   fastify.get('/rooms', async (request, reply) => {
     const prismaClient = new PrismaClient();
@@ -112,7 +105,6 @@ export async function buildFastifyServer() {
   );
 
   fastify.get('/', async (request, reply) => {
-    const auth = getAuth(request);
     return { message: 'Hello world!' };
   });
 
