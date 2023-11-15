@@ -38,6 +38,10 @@ export interface User {
   role: Role;
 }
 
+export interface LoginAPIResData {
+  user: DetailedUser;
+}
+
 export interface RoomIdAPIResData {
   room: Room;
 }

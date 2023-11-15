@@ -80,9 +80,13 @@ body {
 }
 
 input.form-input {
-  @apply rounded-lg px-4 py-2;
+  @apply rounded-lg px-4 py-2 outline-none;
 }
 
 .button {
   @apply rounded-lg px-4 py-2;
+}
+
+.button:disabled {
+  @apply opacity-50;
 }

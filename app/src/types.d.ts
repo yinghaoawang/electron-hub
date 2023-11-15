@@ -19,4 +19,7 @@ interface Window {
     toggle: () => Promise<boolean>;
     reset: () => Promise<boolean>;
   };
+  notifications: {
+    send: (title: string, body: string) => void;
+  };
 }

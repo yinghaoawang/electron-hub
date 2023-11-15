@@ -12,3 +12,9 @@ contextBridge.exposeInMainWorld('darkMode', {
   toggle: () => ipcRenderer.invoke('dark-mode:toggle'),
   reset: () => ipcRenderer.invoke('dark-mode:reset')
 });
+
+contextBridge.exposeInMainWorld('notifications', {
+  send: (title: string, body: string) => {
+    ipcRenderer.invoke('notifications:send', title, body);
+  }
+});

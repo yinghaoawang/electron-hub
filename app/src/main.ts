@@ -1,4 +1,10 @@
-import { app, BrowserWindow, ipcMain, nativeTheme, session } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  nativeTheme,
+  Notification
+} from 'electron';
 import path from 'path';
 
 import { updateElectronApp } from 'update-electron-app';
@@ -30,14 +36,6 @@ const createWindow = () => {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
-
-  // mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
-  //   (details, callback) => {
-  //     details.requestHeaders['User-Agent'] = 'YourCustomUserAgent';
-  //     details.requestHeaders['Origin'] = 'https://localhost:5173';
-  //     callback({ cancel: false, requestHeaders: details.requestHeaders });
-  //   }
-  // );
 };
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -66,6 +64,12 @@ app.whenReady().then(() => {
   ipcMain.handle('dark-mode:reset', () => {
     nativeTheme.themeSource = 'system';
     return nativeTheme.shouldUseDarkColors;
+  });
+
+  ipcMain.handle('notifications:send', (_, title, body) => {
+    const notification = new Notification({ title, body });
+    notification.silent = true;
+    notification.show();
   });
 
   createWindow();

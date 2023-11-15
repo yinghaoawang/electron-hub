@@ -6,7 +6,9 @@ import {
   Room,
   RoomIdAPIResData,
   Role,
-  RoomsAPIResData
+  RoomsAPIResData,
+  LoginAPIResData,
+  DetailedUser
 } from 'shared/shared-types';
 import {
   getAuth,
@@ -81,7 +83,44 @@ export async function buildFastifyServer() {
     reply.status(200).send({ user });
   });
 
-  fastify.post('/login', async (request, reply) => {});
+  fastify.post('/login', async (request, reply) => {
+    try {
+      const { email, password } = JSON.parse(request.body as string) as {
+        email?: string;
+        password?: string;
+      };
+      if (email == null || password == null) {
+        return reply
+          .status(400)
+          .send({ error: 'Email or password not provided.' });
+      }
+      const auth = getAuth();
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      if (userCredential.user == null) throw new Error('Firebase user not found.');
+
+      const dbUser = await new PrismaClient().user.findUnique({
+        where: { email: userCredential.user.email as string }
+      });
+
+      if (dbUser == null) throw new Error('Db user not found.');
+
+      const user: DetailedUser = {
+        id: dbUser.id,
+        displayName: dbUser.displayName,
+        role: dbUser.role as Role,
+        email: dbUser.email
+      };
+      const res: LoginAPIResData = { user };
+      reply.status(200).send({ user });
+    } catch (error) {
+      reply.status(500).send({ error });
+    }
+  });
 
   fastify.get('/rooms', async (request, reply) => {
     const prismaClient = new PrismaClient();
