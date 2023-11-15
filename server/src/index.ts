@@ -10,6 +10,7 @@ const {
 import { buildFastifyServer } from './fastifyServer';
 import { FastifyInstance } from 'fastify';
 import { buildSocketServer } from './socketServer';
+
 buildFastifyServer().then((fastify: FastifyInstance) => {
   fastify.listen(
     { host: FASTIFY_ADDRESS, port: parseInt(FASTIFY_PORT, 10) },

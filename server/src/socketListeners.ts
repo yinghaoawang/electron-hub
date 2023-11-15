@@ -21,6 +21,7 @@ function verifyToken(_token: BearerToken) {
 
 export function createSocketListeners(io: Server) {
   io.on('connection', (socket: Socket) => {
+      console.log('hey');
     socket.on('auth', async (message: AuthMessage) => {
       const sessToken = verifyToken(
         message.headers.Authorization
