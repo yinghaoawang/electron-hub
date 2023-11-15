@@ -9,13 +9,17 @@ import {
   RoomsAPIResData,
   LoginAPIResData,
   DetailedUser,
-  SignupAPIResData
+  SignupAPIResData,
+  MeAPIResData,
+  BearerToken
 } from 'shared/shared-types';
 import {
   getAuth,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
+  getIdToken
 } from 'firebase/auth';
+import firebaseAdmin from 'firebase-admin';
 
 // Tells JSON.stringify to use BigInt.toString() instead of converting to an object
 (BigInt.prototype as any).toJSON = function () {
@@ -54,6 +58,39 @@ export async function buildFastifyServer() {
 
   fastify.use(cors());
 
+  fastify.post('/me', async (request, reply) => {
+    try {
+      const { authorization } = request.headers as {
+        authorization?: BearerToken;
+      };
+
+      const token = authorization?.replace('Bearer ', '');
+      if (token == null) {
+        return reply.status(400).send({ error: 'Token not provided.' });
+      }
+      const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+
+      const dbUser = await new PrismaClient().user.findUnique({
+        where: { email: decodedToken.email }
+      });
+      if (dbUser == null) {
+        throw new Error('User not found.');
+      }
+
+      const user: DetailedUser = {
+        id: dbUser.id,
+        displayName: dbUser.displayName,
+        role: dbUser.role as Role,
+        email: dbUser.email
+      };
+
+      const res: MeAPIResData = { user };
+      reply.status(200).send(res);
+    } catch (error) {
+      reply.status(500).send({ error });
+    }
+  });
+
   fastify.post('/login', async (request, reply) => {
     try {
       const { email, password } = JSON.parse(request.body as string) as {
@@ -75,6 +112,8 @@ export async function buildFastifyServer() {
       if (userCredential.user == null)
         throw new Error('Firebase user not found.');
 
+      const token = await getIdToken(userCredential.user);
+
       const dbUser = await new PrismaClient().user.findUnique({
         where: { email: userCredential.user.email as string }
       });
@@ -87,8 +126,9 @@ export async function buildFastifyServer() {
         role: dbUser.role as Role,
         email: dbUser.email
       };
-      const res: LoginAPIResData = { user };
-      reply.status(200).send({ user });
+
+      const res: LoginAPIResData = { user, token };
+      reply.status(200).send(res);
     } catch (error) {
       reply.status(500).send({ error });
     }
@@ -127,14 +167,16 @@ export async function buildFastifyServer() {
 
       if (dbUser == null) throw new Error('Db user creation failed.');
 
+      const token = await getIdToken(userCredential.user);
+
       const user: DetailedUser = {
         id: dbUser.id,
         displayName: dbUser.displayName,
         role: dbUser.role as Role,
         email: dbUser.email
       };
-      const res: SignupAPIResData = { user };
-      reply.status(200).send({ user });
+      const res: SignupAPIResData = { user, token };
+      reply.status(200).send(res);
     } catch (error) {
       reply.status(500).send({ error });
     }

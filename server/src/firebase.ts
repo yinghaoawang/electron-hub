@@ -1,6 +1,9 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
-import { getAnalytics } from 'firebase/analytics';
+var admin = require('firebase-admin');
+
+var serviceAccount = require('../secret_keys/electron-hub-firebase-adminsdk-qz6o4-921c1e826d.json');
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -22,5 +25,8 @@ const firebaseConfig = {
 // Initialize Firebase
 export const initializeFirebase = () => {
   const firebase = initializeApp(firebaseConfig);
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
   return { firebase };
 };

@@ -38,12 +38,18 @@ export interface User {
   role: Role;
 }
 
+export interface MeAPIResData {
+  user: DetailedUser;
+}
+
 export interface LoginAPIResData {
   user: DetailedUser;
+  token: string;
 }
 
 export interface SignupAPIResData {
   user: DetailedUser;
+  token: string;
 }
 
 export interface RoomIdAPIResData {
