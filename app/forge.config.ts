@@ -32,6 +32,19 @@ const config: ForgeConfig = {
       ],
     }),
   ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'yinghaoawang',
+          name: 'electron-hub'
+        },
+        prerelease: false,
+        draft: true
+      }
+    }
+  ]
 };
 
 export default config;
