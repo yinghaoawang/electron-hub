@@ -1,11 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { cn } from '../../_lib/utils';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function SignInPage() {
-  const { logIn } = useAuth();
+  const { logIn, authUser } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const {
@@ -26,6 +26,11 @@ export default function SignInPage() {
     });
     setIsLoading(false);
   };
+  useEffect(() => {
+    if (authUser != null) {
+      navigate('/');
+    }
+  });
 
   return (
     <form
