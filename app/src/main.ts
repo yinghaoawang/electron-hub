@@ -53,7 +53,7 @@ const createWindow = () => {
   });
 
   // Set icon paths
-  const isProduction = process.env.VITE_NODE_ENV === 'production';
+  const isProduction = MAIN_WINDOW_VITE_DEV_SERVER_URL == null;
   const assetsPath = isProduction
     ? path.join(__dirname, '_assets')
     : path.join(__dirname, '../../src/_assets');
