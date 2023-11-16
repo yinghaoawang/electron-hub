@@ -28,6 +28,7 @@ type AuthContent = {
     onSuccess?: () => unknown,
     onError?: () => unknown
   ) => Promise<void>;
+  logOut?: () => void;
 };
 
 export const AuthContext = createContext<AuthContent>(null);
@@ -73,6 +74,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const storeAuthToken = (token: string) => {
     localStorage.setItem('authToken', token);
     setAuthToken(token);
+  };
+
+  const logOut = async () => {
+    try {
+      const res = await fetch(`${VITE_API_URL}/logout`, {
+        headers: {
+          Authorization: `Bearer ${fetchAuthToken()}`
+        },
+        method: 'POST'
+      });
+      if (!res.ok) {
+        const { error } = await res.json();
+        sendNotification('Logout failed', getAuthErrorMessage(error), 'error');
+      } else {
+        setAuthUser(null);
+        storeAuthToken(null);
+        sendNotification('Logout successful', 'You have been logged out', 'ok');
+      }
+    } catch (error) {
+      sendNotification('Logout failed', getAuthErrorMessage(error), 'error');
+    }
   };
 
   const logIn = async (
@@ -162,7 +184,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     authUser,
     authToken,
     logIn,
-    signUp
+    signUp,
+    logOut
   };
 
   if (isLoading) return <></>;

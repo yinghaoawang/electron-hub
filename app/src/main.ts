@@ -92,7 +92,9 @@ const createWindow = () => {
   });
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (!isProduction) {
+    mainWindow.webContents.openDevTools();
+  }
 };
 
 // Handles for closing the app for macOS

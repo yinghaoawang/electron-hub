@@ -91,6 +91,27 @@ export async function buildFastifyServer() {
     }
   });
 
+  fastify.post('/logout', async (request, reply) => {
+    try {
+      const { authorization } = request.headers as {
+        authorization?: BearerToken;
+      };
+
+      console.log(authorization);
+
+      const token = authorization?.replace('Bearer ', '');
+      if (token == null) {
+        return reply.status(400).send({ error: 'Token not provided.' });
+      }
+      const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+      await firebaseAdmin.auth().revokeRefreshTokens(decodedToken.uid);
+
+      reply.status(200).send();
+    } catch (error) {
+      reply.status(500).send({ error });
+    }
+  });
+
   fastify.post('/login', async (request, reply) => {
     try {
       const { email, password } = JSON.parse(request.body as string) as {
