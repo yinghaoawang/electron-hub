@@ -49,20 +49,6 @@ export default function RoomPage() {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     setTextInput('');
-                    // const newPost: PostWithUser = {
-                    //   id: BigInt(Math.floor(Math.random() * 100000)),
-                    //   authorId: BigInt(1000),
-                    //   content: textInput,
-                    //   user: {
-                    //     id: BigInt(1000),
-                    //     role: Role.USER,
-                    //     displayName: 'You'
-                    //   }
-                    // };
-                    // setData({
-                    //   ...data,
-                    //   posts: [...data.posts, newPost]
-                    // });
                   }
                 }}
                 onChange={(e) => setTextInput(e.target.value)}
