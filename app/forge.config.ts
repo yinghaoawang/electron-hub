@@ -7,7 +7,7 @@ import { VitePlugin } from '@electron-forge/plugin-vite';
 
 const config: ForgeConfig = {
   packagerConfig: {
-    icon: './src/_assets/app-icon.ico'
+    icon: 'src/_assets/app-icon'
   },
   rebuildConfig: {},
   makers: [

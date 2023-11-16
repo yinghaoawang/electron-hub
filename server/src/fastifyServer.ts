@@ -97,8 +97,6 @@ export async function buildFastifyServer() {
         authorization?: BearerToken;
       };
 
-      console.log(authorization);
-
       const token = authorization?.replace('Bearer ', '');
       if (token == null) {
         return reply.status(400).send({ error: 'Token not provided.' });
