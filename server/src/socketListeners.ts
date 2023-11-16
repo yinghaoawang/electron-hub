@@ -29,7 +29,7 @@ export function createSocketListeners(io: Server) {
     //   const user = await clerkClient.users.getUser(sessToken.sub);
     //   socket.user = user;
 
-    //   socket.emit('auth-success');
+    socket.emit('auth-success');
     // });
     console.log('connected');
   });

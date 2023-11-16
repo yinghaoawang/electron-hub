@@ -14,8 +14,7 @@ type AuthContent = {
   isLoggedIn: () => boolean;
   isLoading: boolean;
   authUser: DetailedUser | null;
-  fetchAuthToken: () => string | null;
-  fetchAuthUser: () => Promise<DetailedUser | null>;
+  authToken: string | null;
   logIn: (
     email: string,
     password: string,
@@ -131,29 +130,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const fetchAuthUser = async () => {
-    setIsLoading(true);
-    let user = null;
-    try {
-      const res = await fetch(`${VITE_API_URL}/me`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${fetchAuthToken()}`
-        }
-      });
-      if (res.ok) {
-        const parsedRes: MeAPIResData = await res.json();
-        user = parsedRes.user;
-      }
-    } catch (error) {
-      console.error(error);
-    }
-    setAuthUser(user);
-    setIsLoading(false);
-    return user;
-  };
-  
   useEffect(() => {
+    const fetchAuthUser = async () => {
+      setIsLoading(true);
+      let user = null;
+      try {
+        const res = await fetch(`${VITE_API_URL}/me`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${fetchAuthToken()}`
+          }
+        });
+        if (res.ok) {
+          const parsedRes: MeAPIResData = await res.json();
+          user = parsedRes.user;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+      setAuthUser(user);
+      setIsLoading(false);
+      return user;
+    };
+    
     fetchAuthUser();
   }, []);
 
@@ -161,8 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoggedIn,
     isLoading,
     authUser,
-    fetchAuthToken,
-    fetchAuthUser,
+    authToken,
     logIn,
     signUp
   };

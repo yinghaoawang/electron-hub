@@ -7,6 +7,7 @@ import {
 } from '../../../shared/shared-types';
 import { useRoomData } from './RoomDataContext';
 import useFetch from '../hooks/useFetch';
+import { useAuth } from './AuthContext';
 
 const { VITE_SOCKET_URL, VITE_SOCKET_PATH, VITE_API_URL } = import.meta.env;
 
@@ -17,7 +18,7 @@ const socketWrapper = {
 };
 
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
-  const [accessToken, setAccessToken] = useState<string>(null);
+  const { authToken, authUser } = useAuth();
   const [isSocketLive, setIsSocketLive] = useState<boolean>(false);
   const [isSocketConnecting, setIsSocketConnecting] = useState<boolean>(true);
   const getSocket = () => socketWrapper.socket;
@@ -25,11 +26,12 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const fetch = useFetch();
 
   useEffect(() => {
-    if (accessToken == null) return;
+    if (authToken == null) return;
+    if (authUser == null) return;
     if (getSocket() != null) return;
 
     const headers = {
-      Authorization: `Bearer ${accessToken}` as BearerToken
+      Authorization: `Bearer ${authToken}` as BearerToken
     };
 
     socketWrapper.socket = io(VITE_SOCKET_URL, {
@@ -78,22 +80,11 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
         setIsSocketConnecting(false);
       });
     });
-  }, [accessToken]);
-
-  // useEffect(() => {
-  //   if (userId == null) return;
-
-  //   const fetchAccessToken = async () => {
-  //     const token = await getToken();
-  //     setAccessToken(token);
-  //   };
-
-  //   fetchAccessToken();
-  // }, [userId]);
+  }, [authToken, authUser]);
 
   return (
     <WebSocketContext.Provider
-      value={{ isSocketLive, isSocketConnecting, getSocket, setAccessToken }}
+      value={{ isSocketLive, isSocketConnecting, getSocket }}
     >
       {children}
     </WebSocketContext.Provider>
