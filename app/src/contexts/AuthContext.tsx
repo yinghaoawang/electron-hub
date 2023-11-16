@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       if (!res.ok) {
         const { error } = await res.json();
-        sendNotification('Login failed', getAuthErrorMessage(error));
+        sendNotification('Login failed', getAuthErrorMessage(error), 'error');
         if (onError) onError();
       } else {
         const parsedRes: LoginAPIResData = await res.json();
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (onSuccess) onSuccess();
       }
     } catch (error) {
-      sendNotification('Login failed', getAuthErrorMessage(error));
+      sendNotification('Login failed', getAuthErrorMessage(error), 'error');
       if (onError) onError();
     }
   };
@@ -116,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       if (!res.ok) {
         const { error } = await res.json();
-        sendNotification('Signup failed', getAuthErrorMessage(error));
+        sendNotification('Signup failed', getAuthErrorMessage(error), 'error');
         if (onError) onError();
       } else {
         const parsedRes: SignupAPIResData = await res.json();
@@ -125,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (onSuccess) onSuccess();
       }
     } catch (error) {
-      sendNotification('Signup failed', getAuthErrorMessage(error));
+      sendNotification('Signup failed', getAuthErrorMessage(error), 'error');
       if (onError) onError();
     }
   };
@@ -152,7 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
       return user;
     };
-    
+
     fetchAuthUser();
   }, []);
 

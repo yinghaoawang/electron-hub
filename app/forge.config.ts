@@ -6,7 +6,9 @@ import { MakerRpm } from '@electron-forge/maker-rpm';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 
 const config: ForgeConfig = {
-  packagerConfig: {},
+  packagerConfig: {
+    icon: './src/_assets/app-icon.ico'
+  },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({}),

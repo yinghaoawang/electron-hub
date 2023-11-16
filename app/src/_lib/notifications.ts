@@ -1,6 +1,13 @@
-import thud from '../_assets/thud.mp3';
+import errorSound from '../_assets/error-sound.ogg';
 
-export function sendNotification(title: string, body: string) {
+export function sendNotification(
+  title: string,
+  body: string,
+  type: 'error' | 'default' = 'default'
+) {
   window.notifications.send(title, body);
-  new Audio(thud).play();
+  if (type === 'error') {
+    const audio = new Audio(errorSound);
+    audio.play();
+  }
 }

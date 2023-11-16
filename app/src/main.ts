@@ -2,17 +2,22 @@ import {
   app,
   BrowserWindow,
   ipcMain,
+  Menu,
   nativeTheme,
-  Notification
+  Notification,
+  Tray,
+  nativeImage
 } from 'electron';
 import path from 'path';
-
 import { updateElectronApp } from 'update-electron-app';
-updateElectronApp();
+
+let isQuitting = false;
 
 if (process.platform === 'win32') {
   app.setAppUserModelId('Hub');
 }
+
+updateElectronApp();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -29,7 +34,6 @@ const createWindow = () => {
     }
   });
 
-  // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
@@ -38,13 +42,60 @@ const createWindow = () => {
     );
   }
 
+  // Prevent close unless with tray
+  mainWindow.on('close', function (event) {
+    if (!isQuitting) {
+      event.preventDefault();
+      mainWindow.hide();
+    }
+
+    return false;
+  });
+
+  // Set icon paths
+  const isProduction = process.env.VITE_NODE_ENV === 'production';
+  const assetsPath = isProduction
+    ? path.join(__dirname, '_assets')
+    : path.join(__dirname, '../../src/_assets');
+
+  const windowIconPath = path.join(assetsPath, 'window-icon.png');
+  const trayIconPath = path.join(assetsPath, 'tray-icon.png');
+
+  // Set window icon
+  mainWindow.setIcon(windowIconPath);
+
+  // Create tray & context menu
+  const tray = new Tray(nativeImage.createFromPath(trayIconPath));
+  const contextMenu = Menu.buildFromTemplate([
+    { label: 'Hub', enabled: false },
+    {
+      label: 'Show',
+      click: () => {
+        mainWindow.show();
+      }
+    },
+    {
+      label: 'Quit',
+      click: () => {
+        isQuitting = true;
+        app.quit();
+      }
+    }
+  ]);
+  tray.setToolTip('Hub');
+  tray.setContextMenu(contextMenu);
+  tray.on('right-click', () => {
+    tray.popUpContextMenu();
+  });
+  tray.on('click', () => {
+    mainWindow.show();
+  });
+
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 };
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
+// Handles for closing the app for macOS
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -86,6 +137,3 @@ app.whenReady().then(() => {
     }
   });
 });
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
