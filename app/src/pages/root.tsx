@@ -15,7 +15,7 @@ export default function RootPage() {
     fetchData();
   }, []);
   return (
-    <div className='flex items-center mt-8 flex-col gap-2'>
+    <div className='flex items-center mt-8 flex-col gap-2 px-4'>
       <h1 className='text-3xl font-bold mb-3'>💖 Hello World!</h1>
       <p>Welcome to your Electron application.</p>
       <div>NODE_ENV {VITE_NODE_ENV}</div>

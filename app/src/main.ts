@@ -10,6 +10,10 @@ import path from 'path';
 import { updateElectronApp } from 'update-electron-app';
 updateElectronApp();
 
+if (process.platform === 'win32') {
+  app.setAppUserModelId('Hub');
+}
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();

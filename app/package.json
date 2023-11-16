@@ -1,8 +1,8 @@
 {
   "name": "electron-hub",
-  "productName": "electron-hub",
+  "productName": "Hub",
   "version": "0.1.5",
-  "description": "My Electron application description",
+  "description": "Who needs Discord?",
   "main": ".vite/build/main.js",
   "repository": {
     "url": "https://github.com/yinghaoawang/electron-hub"
@@ -52,7 +52,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.48.2",
-    "react-use-websocket": "^4.5.0",
     "socket.io-client": "^4.7.2",
     "tailwind-merge": "^2.0.0",
     "update-electron-app": "^3.0.0"
