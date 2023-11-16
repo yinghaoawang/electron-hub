@@ -2,5 +2,4 @@ node_modules/
 out/
 
 .env
-.env.local
 secret_keys/
