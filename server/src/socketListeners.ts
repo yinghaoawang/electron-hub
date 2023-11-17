@@ -1,5 +1,9 @@
 import { Socket } from 'types';
-import { AuthSocketData, RoomMessageSocketData } from 'shared/shared-types';
+import {
+  AuthSocketData,
+  RoomMessageServerSocketData,
+  RoomMessageSocketData
+} from 'shared/shared-types';
 import { Server } from 'socket.io';
 import firebaseAdmin from 'firebase-admin';
 import { PrismaClient, Role } from '@prisma/client';
@@ -42,12 +46,10 @@ export function createSocketListeners(io: Server) {
 
       socket.user = user;
 
-      console.log(socket.user);
-      socket.emit('authSuccess');
+      socket.emit('authSuccessServer');
     });
 
     socket.on('roomMessage', async (data: RoomMessageSocketData) => {
-      console.log('message', data);
       // check if user is in room
       const dbRoom = await new PrismaClient().room.findUnique({
         where: { id: data.roomId },
@@ -68,12 +70,36 @@ export function createSocketListeners(io: Server) {
       }
       const dbPost = await new PrismaClient().post.create({
         data: {
-          authorId: socket.user?.id,
+          authorId: socket.user.id,
           content: data.message,
           channelId: data.channelId
         }
       });
-      console.log(dbPost);
+
+      const post = {
+        id: dbPost.id,
+        authorId: socket.user.id,
+        content: data.message
+      };
+      const user = {
+        id: socket.user.id,
+        displayName: socket.user.displayName,
+        role: socket.user.role
+      };
+      const res: RoomMessageServerSocketData = {
+        post: {
+          ...post,
+          user
+        },
+        channelId: dbPost.channelId,
+        roomId: data.roomId
+      };
+      // Tells JSON.stringify to use BigInt.toString() instead of converting to an object
+      (BigInt.prototype as any).toJSON = function () {
+        return this.toString();
+      };
+      console.log(res);
+      socket.emit('roomMessageServer', res);
     });
     console.log('connected');
   });

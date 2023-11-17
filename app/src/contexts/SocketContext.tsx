@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import {
   AuthSocketData,
   BearerToken,
+  RoomMessageServerSocketData,
   RoomMessageSocketData
 } from '../../../shared/shared-types';
 import { useRoomData } from './RoomDataContext';
@@ -27,7 +28,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const { authToken, authUser } = useAuth();
   const [isSocketLive, setIsSocketLive] = useState<boolean>(false);
   const [isSocketConnecting, setIsSocketConnecting] = useState<boolean>(true);
-  const { fetchAllRoomData } = useRoomData();
+  const { fetchAllRoomData, addMessage, roomDataArray } = useRoomData();
   const { currentRoom, currentChannel } = useCurrentRoom();
 
   const getSocket = () => socketWrapper.socket;
@@ -63,7 +64,10 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
         bearerToken
       };
       socket.emit('auth', authMessage);
-      socket.on('authSuccess', () => {
+      socket.on('roomMessageServer', (data: RoomMessageServerSocketData) => {
+        addMessage(data);
+      });
+      socket.on('authSuccessServer', () => {
         console.log('Successfully authenticated with WebSocket server');
         setIsSocketLive(true);
         setIsSocketConnecting(false);
@@ -77,6 +81,15 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       });
     });
   }, [authToken, authUser]);
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (socket == null) return;
+    socket.off('roomMessageServer');
+    socket.on('roomMessageServer', (data: RoomMessageServerSocketData) => {
+      addMessage(data);
+    });
+  }, [roomDataArray]);
 
   const value = { isSocketLive, isSocketConnecting, getSocket, sendMessage };
   return (

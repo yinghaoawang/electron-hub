@@ -38,15 +38,14 @@ export interface User {
   role: Role;
 }
 
+// Api payload types
 export interface MeAPIResData {
   user: DetailedUser;
 }
-
 export interface LoginAPIResData {
   user: DetailedUser;
   token: string;
 }
-
 export interface SignupAPIResData {
   user: DetailedUser;
   token: string;
@@ -60,11 +59,17 @@ export interface RoomsAPIResData {
   rooms: Room[];
 }
 
+// Socket payload types
 export interface AuthSocketData {
   bearerToken: BearerToken;
 }
 export interface RoomMessageSocketData {
   message: string;
+  roomId: bigint;
+  channelId: bigint;
+}
+export interface RoomMessageServerSocketData {
+  post: PostWithUser;
   roomId: bigint;
   channelId: bigint;
 }

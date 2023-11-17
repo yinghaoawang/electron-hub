@@ -2,6 +2,8 @@ import { createContext, useContext, useState } from 'react';
 import {
   Room,
   RoomIdAPIResData,
+  RoomMessageServerSocketData,
+  RoomMessageSocketData,
   RoomsAPIResData
 } from '../../../shared/shared-types';
 import useFetch from '../hooks/useFetch';
@@ -14,6 +16,7 @@ type RoomDataContent = {
   setRoomData: (room: Room) => void;
   fetchAllRoomData: () => Promise<void>;
   fetchRoomData: (id: bigint) => Promise<void>;
+  addMessage(data: RoomMessageServerSocketData): void;
 };
 
 const RoomDataContext = createContext<RoomDataContent>(null);
@@ -21,7 +24,7 @@ export function RoomDataProvider({ children }: { children: React.ReactNode }) {
   const fetch = useFetch();
   const [roomDataArray, setRoomDataArray] = useState<Room[]>([]);
   const getRoomData = (id: bigint) => {
-    return roomDataArray.find((room) => BigInt(room.id) == id);
+    return roomDataArray.find((room) => room.id == id);
   };
   const setRoomsData = (rooms: Room[]) => {
     const roomDataArrayCopy = [...roomDataArray];
@@ -35,6 +38,30 @@ export function RoomDataProvider({ children }: { children: React.ReactNode }) {
         roomDataArrayCopy[roomIndex] = room;
       }
     });
+    setRoomDataArray(roomDataArrayCopy);
+  };
+
+  const addMessage = (data: RoomMessageServerSocketData) => {
+    const roomDataArrayCopy = [...roomDataArray];
+    const roomIndex = roomDataArrayCopy.findIndex(
+      (roomData) => roomData.id === data.roomId
+    );
+    if (roomIndex === -1) {
+      console.error('Unable to find room');
+      return;
+    }
+    const room = roomDataArrayCopy[roomIndex];
+    const channelIndex = room.channels.findIndex(
+      (channel) => channel.id === data.channelId
+    );
+    if (channelIndex === -1) {
+      console.error('Unable to find channel');
+      return;
+    }
+    const channel = room.channels[channelIndex];
+    channel.posts.push(data.post);
+    room.channels[channelIndex] = channel;
+    roomDataArrayCopy[roomIndex] = room;
     setRoomDataArray(roomDataArrayCopy);
   };
 
@@ -87,7 +114,8 @@ export function RoomDataProvider({ children }: { children: React.ReactNode }) {
     setRoomData,
     roomDataArray,
     fetchAllRoomData,
-    fetchRoomData
+    fetchRoomData,
+    addMessage
   };
 
   return (

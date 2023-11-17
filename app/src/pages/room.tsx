@@ -8,7 +8,7 @@ export default function RoomPage() {
   const { roomId } = useParams();
   const [textInput, setTextInput] = useState('');
   const postsContainerRef = useRef<HTMLDivElement>(null);
-  const { currentRoom, setCurrentRoomById } = useCurrentRoom();
+  const { currentRoom, currentChannel, setCurrentRoomById } = useCurrentRoom();
   const { roomDataArray } = useRoomData();
   const { sendMessage } = useSocket();
 
@@ -59,10 +59,11 @@ export default function RoomPage() {
                     sendMessage(textInput);
                   }
                 }}
+                disabled={currentChannel == null}
                 onChange={(e) => setTextInput(e.target.value)}
                 value={textInput}
                 className='message-box w-full resize-none p-4 h-28 pr-[calc(40px+1rem)] bg-inherit'
-                placeholder='Enter your message'
+                placeholder={currentChannel == null ? 'Select a channel' : 'Enter your message'}
               />
               <div className='relative flex items-center'>
                 <button className='!text-gray-200 right-1 h-[40px] w-[40px] mr-2 absolute button !bg-green-500 flex items-center justify-center'>
