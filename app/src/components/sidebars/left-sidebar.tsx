@@ -8,11 +8,12 @@ export default function LeftSidebar() {
 
   return (
     <div className='left-sidebar shrink-0 w-[250px] h-screen flex flex-col justify-between'>
-      <div className='px-4 overflow-auto'>
-        <div className='flex flex-col gap-1'></div>
+      <div className='pt-4 px-4 overflow-auto'>
+        <div className='text-xl font-semibold'>Channels</div>
         {currentRoom?.channels.map((channel, index) => (
           <button key={index} className='block my-1 py-1 truncate'>
-            {channel.name}
+            <span className='mr-2'>#</span>
+            <span>{channel.name}</span>
           </button>
         ))}
       </div>
