@@ -1,21 +1,26 @@
 import { Socket } from 'types';
-import { AuthSocketMessage } from 'shared/shared-types';
+import { AuthSocketData, RoomMessageSocketData } from 'shared/shared-types';
 import { Server } from 'socket.io';
 import firebaseAdmin from 'firebase-admin';
 import { PrismaClient, Role } from '@prisma/client';
 
 export function createSocketListeners(io: Server) {
   io.on('connection', (socket: Socket) => {
-    socket.on('auth', async (data: AuthSocketMessage) => {
+    socket.on('auth', async (data: AuthSocketData) => {
       const token = data.bearerToken?.replace('Bearer ', '');
       if (token == null) {
         console.error('Token is not provided');
         socket.disconnect();
         return;
       }
-      const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
-      if (decodedToken == null) {
-        console.error('Token is invalid');
+      let decodedToken;
+      try {
+        decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+        if (decodedToken == null) {
+          throw new Error('Token is invalid');
+        }
+      } catch (error) {
+        console.error('Token is invalid', error);
         socket.disconnect();
         return;
       }
@@ -38,12 +43,37 @@ export function createSocketListeners(io: Server) {
       socket.user = user;
 
       console.log(socket.user);
-      socket.emit('auth-success');
+      socket.emit('authSuccess');
     });
 
-    socket.on('message', (message: string) => {
-      console.log('message', message);
-      console.log(socket.user);
+    socket.on('roomMessage', async (data: RoomMessageSocketData) => {
+      console.log('message', data);
+      // check if user is in room
+      const dbRoom = await new PrismaClient().room.findUnique({
+        where: { id: data.roomId },
+        include: {
+          users: true
+        }
+      });
+      if (dbRoom == null) {
+        console.error('Room not found');
+        return;
+      }
+      const matchingUser = dbRoom.users.find(
+        (user) => user.id === socket.user?.id
+      );
+      if (matchingUser == null) {
+        socket.emit('error', { message: 'You are not in this room' });
+        return;
+      }
+      const dbPost = await new PrismaClient().post.create({
+        data: {
+          authorId: socket.user?.id,
+          content: data.message,
+          channelId: data.channelId
+        }
+      });
+      console.log(dbPost);
     });
     console.log('connected');
   });

@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { useCurrentRoom } from '../contexts/CurrentRoomContext';
 import { useParams } from 'react-router-dom';
 import { useSocket } from '../contexts/SocketContext';
+import { useRoomData } from '../contexts/RoomDataContext';
 
 export default function RoomPage() {
   const { roomId } = useParams();
   const [textInput, setTextInput] = useState('');
   const postsContainerRef = useRef<HTMLDivElement>(null);
   const { currentRoom, setCurrentRoomById } = useCurrentRoom();
+  const { roomDataArray } = useRoomData();
   const { sendMessage } = useSocket();
 
   if (roomId == null) {
@@ -15,8 +17,11 @@ export default function RoomPage() {
   }
 
   useEffect(() => {
+    if (roomDataArray.length === 0) {
+      return;
+    }
     setCurrentRoomById(BigInt(roomId));
-  }, []);
+  }, [roomId, roomDataArray]);
 
   useEffect(() => {
     const postsContainer = postsContainerRef.current;
@@ -36,7 +41,7 @@ export default function RoomPage() {
               ref={postsContainerRef}
               className='overflow-auto py-4 flex flex-col gap-2 grow'
             >
-              {currentRoom.channels?.[0].posts.map((post) => (
+              {currentRoom.channels?.[0]?.posts?.map((post) => (
                 <div key={post.id} className='px-4'>
                   <span className='font-semibold mr-3'>
                     {post.user.displayName}

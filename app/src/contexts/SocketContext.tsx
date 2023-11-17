@@ -1,8 +1,13 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { AuthSocketMessage, BearerToken } from '../../../shared/shared-types';
+import {
+  AuthSocketData,
+  BearerToken,
+  RoomMessageSocketData
+} from '../../../shared/shared-types';
 import { useRoomData } from './RoomDataContext';
 import { useAuth } from './AuthContext';
+import { useCurrentRoom } from './CurrentRoomContext';
 
 const { VITE_SOCKET_URL, VITE_SOCKET_PATH } = import.meta.env;
 
@@ -23,6 +28,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const [isSocketLive, setIsSocketLive] = useState<boolean>(false);
   const [isSocketConnecting, setIsSocketConnecting] = useState<boolean>(true);
   const { fetchAllRoomData } = useRoomData();
+  const { currentRoom, currentChannel } = useCurrentRoom();
 
   const getSocket = () => socketWrapper.socket;
 
@@ -32,7 +38,12 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       console.error('Socket is not connected');
       return;
     }
-    socket.emit('message', { message });
+    const data: RoomMessageSocketData = {
+      message,
+      roomId: currentRoom.id,
+      channelId: currentChannel.id
+    };
+    socket.emit('roomMessage', data);
   };
 
   useEffect(() => {
@@ -48,21 +59,16 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       setIsSocketConnecting(true);
       const socket = getSocket();
       const bearerToken = `Bearer ${authToken}` as BearerToken;
-      const authMessage: AuthSocketMessage = {
+      const authMessage: AuthSocketData = {
         bearerToken
       };
       socket.emit('auth', authMessage);
-      socket.on('auth-success', () => {
+      socket.on('authSuccess', () => {
         console.log('Successfully authenticated with WebSocket server');
         setIsSocketLive(true);
         setIsSocketConnecting(false);
 
         fetchAllRoomData();
-      });
-      socket.on('auth-failure', () => {
-        console.error('Failed to authenticate with WebSocket server');
-        setIsSocketLive(false);
-        setIsSocketConnecting(false);
       });
       socket.on('disconnect', () => {
         console.log('Disconnected from WebSocket server');

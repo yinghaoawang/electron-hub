@@ -1,5 +1,9 @@
 import { createContext, useContext, useState } from 'react';
-import { Room, RoomsAPIResData } from '../../../shared/shared-types';
+import {
+  Room,
+  RoomIdAPIResData,
+  RoomsAPIResData
+} from '../../../shared/shared-types';
 import useFetch from '../hooks/useFetch';
 
 const { VITE_API_URL } = import.meta.env;
@@ -9,6 +13,7 @@ type RoomDataContent = {
   getRoomData: (id: bigint) => Room;
   setRoomData: (room: Room) => void;
   fetchAllRoomData: () => Promise<void>;
+  fetchRoomData: (id: bigint) => Promise<void>;
 };
 
 const RoomDataContext = createContext<RoomDataContent>(null);
@@ -18,6 +23,21 @@ export function RoomDataProvider({ children }: { children: React.ReactNode }) {
   const getRoomData = (id: bigint) => {
     return roomDataArray.find((room) => BigInt(room.id) == id);
   };
+  const setRoomsData = (rooms: Room[]) => {
+    const roomDataArrayCopy = [...roomDataArray];
+    rooms.forEach((room) => {
+      const roomIndex = roomDataArrayCopy.findIndex(
+        (roomData) => roomData.id === room.id
+      );
+      if (roomIndex === -1) {
+        roomDataArrayCopy.push(room);
+      } else {
+        roomDataArrayCopy[roomIndex] = room;
+      }
+    });
+    setRoomDataArray(roomDataArrayCopy);
+  };
+
   const setRoomData = (room: Room) => {
     const roomData = getRoomData(room.id);
     if (roomData == null) {
@@ -31,7 +51,22 @@ export function RoomDataProvider({ children }: { children: React.ReactNode }) {
       setRoomDataArray(roomDataArrayCopy);
     }
   };
-  // fetch all rooms on connection
+
+  const fetchRoomData = async (id: bigint) => {
+    try {
+      const res: RoomIdAPIResData = await fetch(`${VITE_API_URL}/room/${id}`, {
+        method: 'GET'
+      });
+
+      if (res == null || res?.room == null)
+        throw new Error('Unable to fetch room data');
+
+      setRoomData(res.room);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const fetchAllRoomData = async () => {
     try {
       const res: RoomsAPIResData = await fetch(`${VITE_API_URL}/rooms`, {
@@ -41,15 +76,19 @@ export function RoomDataProvider({ children }: { children: React.ReactNode }) {
       if (res == null || res?.rooms == null)
         throw new Error('Unable to fetch room list data');
 
-      res?.rooms.forEach((room) => {
-        setRoomData(room);
-      });
+      setRoomsData(res.rooms);
     } catch (err) {
       console.error(err);
     }
   };
 
-  const value = { getRoomData, setRoomData, roomDataArray, fetchAllRoomData };
+  const value = {
+    getRoomData,
+    setRoomData,
+    roomDataArray,
+    fetchAllRoomData,
+    fetchRoomData
+  };
 
   return (
     <RoomDataContext.Provider value={value}>

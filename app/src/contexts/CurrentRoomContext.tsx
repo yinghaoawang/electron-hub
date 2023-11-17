@@ -34,6 +34,10 @@ export function CurrentRoomProvider({
   }, [currentRoomId, roomDataArray]);
 
   const setCurrentRoomById = (id: bigint) => {
+    if (id == null) {
+      setCurrentRoomId(null);
+      return;
+    }
     setCurrentRoomId(id);
   };
 

@@ -60,8 +60,13 @@ export interface RoomsAPIResData {
   rooms: Room[];
 }
 
-export interface AuthSocketMessage {
+export interface AuthSocketData {
   bearerToken: BearerToken;
+}
+export interface RoomMessageSocketData {
+  message: string;
+  roomId: bigint;
+  channelId: bigint;
 }
 
 // Make sure this is in sync with /server/schema.prisma
