@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { AuthMessage, BearerToken } from '../../../shared/shared-types';
+import { AuthSocketMessage, BearerToken } from '../../../shared/shared-types';
 import { useRoomData } from './RoomDataContext';
 import { useAuth } from './AuthContext';
 
@@ -40,10 +40,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     if (authUser == null) return;
     if (getSocket() != null) return;
 
-    const headers = {
-      Authorization: `Bearer ${authToken}` as BearerToken
-    };
-
     socketWrapper.socket = io(VITE_SOCKET_URL, {
       path: VITE_SOCKET_PATH,
       transports: ['websocket']
@@ -51,7 +47,10 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     getSocket().on('connect', () => {
       setIsSocketConnecting(true);
       const socket = getSocket();
-      const authMessage: AuthMessage = { headers };
+      const bearerToken = `Bearer ${authToken}` as BearerToken;
+      const authMessage: AuthSocketMessage = {
+        bearerToken
+      };
       socket.emit('auth', authMessage);
       socket.on('auth-success', () => {
         console.log('Successfully authenticated with WebSocket server');

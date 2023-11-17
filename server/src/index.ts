@@ -12,6 +12,11 @@ import { FastifyInstance } from 'fastify';
 import { buildSocketServer } from './socketServer';
 import { initializeFirebase } from './firebase';
 
+// Tells JSON.stringify to use BigInt.toString() instead of converting to an object
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
 initializeFirebase();
 
 buildFastifyServer().then((fastify: FastifyInstance) => {

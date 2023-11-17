@@ -21,11 +21,6 @@ import {
 } from 'firebase/auth';
 import firebaseAdmin from 'firebase-admin';
 
-// Tells JSON.stringify to use BigInt.toString() instead of converting to an object
-(BigInt.prototype as any).toJSON = function () {
-  return this.toString();
-};
-
 function dbRoomToRoom(dbRoom: any): Room {
   return {
     id: dbRoom.id,

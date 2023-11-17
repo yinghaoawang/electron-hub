@@ -1,9 +1,9 @@
 export type BearerToken = `Bearer ${string}`;
-export interface AuthMessage {
-  headers: {
-    Authorization: BearerToken;
-  };
-}
+// export interface AuthMessage {
+//   headers: {
+//     Authorization: BearerToken;
+//   };
+// }
 
 export interface Room {
   id: bigint;
@@ -58,6 +58,10 @@ export interface RoomIdAPIResData {
 
 export interface RoomsAPIResData {
   rooms: Room[];
+}
+
+export interface AuthSocketMessage {
+  bearerToken: BearerToken;
 }
 
 // Make sure this is in sync with /server/schema.prisma

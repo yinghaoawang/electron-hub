@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useCurrentRoom } from '../contexts/CurrentRoomContext';
 import { useParams } from 'react-router-dom';
+import { useSocket } from '../contexts/SocketContext';
 
 export default function RoomPage() {
   const { roomId } = useParams();
   const [textInput, setTextInput] = useState('');
   const postsContainerRef = useRef<HTMLDivElement>(null);
   const { currentRoom, setCurrentRoomById } = useCurrentRoom();
+  const { sendMessage } = useSocket();
 
   if (roomId == null) {
     throw new Error('Missing roomId');
@@ -49,6 +51,7 @@ export default function RoomPage() {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     setTextInput('');
+                    sendMessage(textInput);
                   }
                 }}
                 onChange={(e) => setTextInput(e.target.value)}
