@@ -3,14 +3,18 @@ import useFetch from '../hooks/useFetch';
 import {
   ExploreAPIData,
   JoinRoomAPIData,
+  JoinRoomResAPIData,
   RoomInfo
 } from '../../../shared/shared-types';
 import { cn } from '../_lib/utils';
+import { useRoomData } from '../contexts/RoomDataContext';
 
 const { VITE_API_URL } = import.meta.env;
 
 const RoomInfoRow = ({ roomInfo }: { roomInfo: RoomInfo }) => {
+  const [isJoined, setIsJoined] = useState<boolean>(roomInfo.isJoined);
   const [isJoining, setIsJoining] = useState<boolean>(false);
+  const { setRoomData } = useRoomData();
   const fetch = useFetch();
 
   const handleJoinRoom = (roomId: bigint) => {
@@ -20,11 +24,15 @@ const RoomInfoRow = ({ roomInfo }: { roomInfo: RoomInfo }) => {
         const data: JoinRoomAPIData = {
           roomId
         };
-        const res = await fetch(`${VITE_API_URL}/join-room`, {
-          method: 'POST',
-          body: JSON.stringify(data)
-        });
-        console.log(res);
+        const res: JoinRoomResAPIData = await fetch(
+          `${VITE_API_URL}/join-room`,
+          {
+            method: 'POST',
+            body: JSON.stringify(data)
+          }
+        );
+        setRoomData(res.room);
+        setIsJoined(true);
       } catch (error) {
         console.error('Unable to join room', error);
       }
@@ -37,15 +45,15 @@ const RoomInfoRow = ({ roomInfo }: { roomInfo: RoomInfo }) => {
       <div>{roomInfo.name}</div>
       <div>{roomInfo.userCount} users</div>
       <button
-        disabled={roomInfo.isJoined || isJoining}
+        disabled={isJoined || isJoining}
         onClick={() => handleJoinRoom(roomInfo.id)}
         className={cn(
           'button w-20',
-          roomInfo.isJoined ? '!bg-transparent' : '!bg-green-700'
+          isJoined ? '!bg-transparent' : '!bg-green-700'
         )}
       >
         {isJoining && '...'}
-        {!isJoining && (roomInfo.isJoined ? 'Joined' : 'Join')}
+        {!isJoining && (isJoined ? 'Joined' : 'Join')}
       </button>
     </Fragment>
   );

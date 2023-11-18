@@ -13,7 +13,8 @@ import {
   MeAPIResData,
   BearerToken,
   RoomInfo,
-  ExploreAPIData
+  ExploreAPIData,
+  JoinRoomResAPIData
 } from 'shared/shared-types';
 import {
   getAuth,
@@ -289,7 +290,7 @@ export async function buildFastifyServer() {
         throw new Error(`User is already in this room.`);
       }
 
-      await prismaClient.room.update({
+      const room = await prismaClient.room.update({
         where: { id: roomId },
         data: {
           users: {
@@ -297,10 +298,24 @@ export async function buildFastifyServer() {
               email: decodedToken.email
             }
           }
+        },
+        include: {
+          users: true,
+          channels: {
+            include: {
+              posts: {
+                include: {
+                  author: true
+                }
+              }
+            }
+          }
         }
       });
 
-      reply.status(200).send({ message: 'Successfully joined room.' });
+      const res: JoinRoomResAPIData = { room: dbRoomToRoom(room) };
+
+      reply.status(200).send(res);
     } catch (error) {
       reply.status(500).send({ error });
     }

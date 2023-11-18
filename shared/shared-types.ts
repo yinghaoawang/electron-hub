@@ -69,6 +69,9 @@ export interface RoomsAPIResData {
 export interface JoinRoomAPIData {
   roomId: bigint;
 }
+export interface JoinRoomResAPIData {
+  room: Room;
+}
 
 // Socket payload types
 export interface AuthSocketData {
