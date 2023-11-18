@@ -14,6 +14,7 @@ type RoomDataContent = {
   roomDataArray: Room[];
   getRoomData: (id: bigint) => Room;
   setRoomData: (room: Room) => void;
+  removeRoomData: (id: bigint) => void;
   fetchAllRoomData: () => Promise<void>;
   fetchRoomData: (id: bigint) => Promise<void>;
   addMessage(data: RoomMessageServerSocketData): void;
@@ -39,6 +40,18 @@ export function RoomDataProvider({ children }: { children: React.ReactNode }) {
         roomDataArrayCopy[roomIndex] = room;
       }
     });
+    setRoomDataArray(roomDataArrayCopy);
+  };
+  const removeRoomData = (id: bigint) => {
+    const roomDataArrayCopy = [...roomDataArray];
+    const roomIndex = roomDataArrayCopy.findIndex(
+      (roomData) => roomData.id === id
+    );
+    if (roomIndex === -1) {
+      console.error('Unable to find room');
+      return;
+    }
+    roomDataArrayCopy.splice(roomIndex, 1);
     setRoomDataArray(roomDataArrayCopy);
   };
 
@@ -119,6 +132,7 @@ export function RoomDataProvider({ children }: { children: React.ReactNode }) {
   const value = {
     getRoomData,
     setRoomData,
+    removeRoomData,
     roomDataArray,
     fetchAllRoomData,
     fetchRoomData,
