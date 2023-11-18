@@ -32,6 +32,9 @@ body {
   .left-sidebar .user-tray {
     @apply bg-neutral-950/70;
   }
+  .left-sidebar .current-channel {
+    @apply bg-neutral-800;
+  }
 
   .right-sidebar {
     @apply bg-neutral-900;
@@ -42,6 +45,17 @@ body {
   }
   .page-content .message-box {
     @apply bg-neutral-900/60;
+  }
+
+  .auth-container {
+    @apply bg-neutral-900;
+  }
+  .auth-container .submit-button {
+    @apply bg-gray-800;
+  }
+
+  .explore .join-button {
+    @apply bg-green-700;
   }
 }
 
@@ -57,7 +71,10 @@ body {
     @apply bg-neutral-100/40;
   }
   .nav-sidebar .nav-icon {
-    @apply bg-gray-400/80 text-white;
+    @apply bg-gray-400 text-white;
+  }
+  .nav-sidebar .nav-icon {
+    @apply opacity-70;
   }
 
   .left-sidebar {
@@ -65,6 +82,9 @@ body {
   }
   .left-sidebar .user-tray {
     @apply bg-neutral-200/60 border-t border-neutral-300/60;
+  }
+  .left-sidebar .current-channel {
+    @apply bg-neutral-200;
   }
 
   .right-sidebar {
@@ -76,6 +96,17 @@ body {
   }
   .page-content .message-box {
     @apply bg-neutral-200/50;
+  }
+
+  .auth-container {
+    @apply bg-neutral-200/40 text-gray-600;
+  }
+  .auth-container .submit-button {
+    @apply bg-neutral-100;
+  }
+
+  .explore .join-button {
+    @apply bg-green-400 text-gray-100;
   }
 }
 

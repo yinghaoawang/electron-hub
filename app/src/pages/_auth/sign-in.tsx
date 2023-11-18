@@ -34,7 +34,7 @@ export default function SignInPage() {
 
   return (
     <form
-      className='flex flex-col gap-4 bg-neutral-900 max-w-[350px] w-full p-8 rounded-xl'
+      className='auth-container flex flex-col gap-4 max-w-[350px] w-full p-8 rounded-xl'
       onSubmit={handleSubmit(onSubmit)}
     >
       <h2 className='text-lg font-semibold mb-2'>Sign In</h2>
@@ -56,7 +56,7 @@ export default function SignInPage() {
         })}
       />
       <div className='flex flex-col gap-3 mb-2'>
-        <button disabled={isLoading} className='button !bg-gray-800'>
+        <button disabled={isLoading} className='button submit-button'>
           Sign In
         </button>
         <Link className='text-center' to='/sign-up'>

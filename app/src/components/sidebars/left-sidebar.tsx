@@ -42,7 +42,7 @@ export default function LeftSidebar() {
             key={index}
             className={cn(
               'flex my-1 py-1 truncate w-full px-4 h-10 items-center rounded-md',
-              channel == currentChannel && '!bg-neutral-800'
+              channel == currentChannel && 'current-channel'
             )}
           >
             <span className='mr-2'>#</span>

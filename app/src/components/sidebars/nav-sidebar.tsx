@@ -15,14 +15,14 @@ export default function NavSidebar() {
         <Link
           to={'/'}
           onClick={() => setCurrentRoomById(null)}
-          className='nav-icon h-12 w-12 flex items-center justify-center rounded-full !bg-slate-500'
+          className='nav-icon h-12 w-12 flex items-center justify-center rounded-full !bg-slate-700'
         >
           Hom
         </Link>
         <Link
           to={'/about'}
           onClick={() => setCurrentRoomById(null)}
-          className='nav-icon h-12 w-12 flex items-center justify-center rounded-full !bg-zinc-500'
+          className='nav-icon h-12 w-12 flex items-center justify-center rounded-full !bg-zinc-700'
         >
           Abt
         </Link>
@@ -38,7 +38,7 @@ export default function NavSidebar() {
         <Link
           to={'/explore'}
           onClick={() => setCurrentRoomById(null)}
-          className='nav-icon h-12 w-12 flex items-center justify-center rounded-full !bg-emerald-600'
+          className='nav-icon h-12 w-12 flex items-center justify-center rounded-full !bg-green-700'
         >
           Rooms
         </Link>
@@ -48,7 +48,7 @@ export default function NavSidebar() {
             logOut();
             disconnectSocket();
           }}
-          className='nav-icon h-12 w-12 flex items-center justify-center rounded-full !bg-red-800'
+          className='nav-icon h-12 w-12 flex items-center justify-center rounded-full !bg-red-700'
         >
           Logot
         </button>

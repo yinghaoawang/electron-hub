@@ -49,7 +49,7 @@ const RoomInfoRow = ({ roomInfo }: { roomInfo: RoomInfo }) => {
         onClick={() => handleJoinRoom(roomInfo.id)}
         className={cn(
           'button w-20',
-          isJoined ? '!bg-transparent' : '!bg-green-700'
+          isJoined ? '!bg-transparent' : 'join-button'
         )}
       >
         {isJoining && '...'}
@@ -74,7 +74,7 @@ export default function ExplorePage() {
     fetchData();
   }, []);
   return (
-    <div className='flex mt-8 flex-col gap-2 px-8'>
+    <div className='explore flex mt-8 flex-col gap-2 px-8'>
       {isLoading && 'Loading...'}
       {!isLoading && (
         <>
