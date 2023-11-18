@@ -12,6 +12,13 @@ export interface Room {
   users: User[];
 }
 
+export interface RoomInfo {
+  id: bigint;
+  name: string;
+  isJoined: boolean;
+  userCount: number;
+}
+
 export interface Channel {
   id: bigint;
   name: string;
@@ -50,11 +57,12 @@ export interface SignupAPIResData {
   user: DetailedUser;
   token: string;
 }
-
+export interface ExploreAPIData {
+  roomInfos: RoomInfo[];
+}
 export interface RoomIdAPIResData {
   room: Room;
 }
-
 export interface RoomsAPIResData {
   rooms: Room[];
 }

@@ -18,6 +18,7 @@ import { WebSocketProvider } from './contexts/SocketContext';
 import RoomPage from './pages/room';
 import { RoomDataProvider } from './contexts/RoomDataContext';
 import { CurrentRoomProvider } from './contexts/CurrentRoomContext';
+import ExplorePage from './pages/explore';
 
 const routes = [
   {
@@ -66,6 +67,10 @@ const routes = [
             Not much to say.
           </div>
         )
+      },
+      {
+        path: '/explore',
+        element: <ExplorePage />
       }
     ]
   }

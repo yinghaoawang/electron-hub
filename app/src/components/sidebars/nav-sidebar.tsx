@@ -33,6 +33,13 @@ export default function NavSidebar() {
             {room.name}
           </Link>
         ))}
+        <Link
+          to={'/explore'}
+          onClick={() => setCurrentRoomById(null)}
+          className='nav-icon h-12 w-12 flex items-center justify-center rounded-full !bg-emerald-600'
+        >
+          Rooms
+        </Link>
         <button
           onClick={() => {
             setCurrentRoomById(null);

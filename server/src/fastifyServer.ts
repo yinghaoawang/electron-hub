@@ -11,7 +11,9 @@ import {
   DetailedUser,
   SignupAPIResData,
   MeAPIResData,
-  BearerToken
+  BearerToken,
+  RoomInfo,
+  ExploreAPIData
 } from 'shared/shared-types';
 import {
   getAuth,
@@ -191,6 +193,57 @@ export async function buildFastifyServer() {
         email: dbUser.email
       };
       const res: SignupAPIResData = { user, token };
+      reply.status(200).send(res);
+    } catch (error) {
+      reply.status(500).send({ error });
+    }
+  });
+
+  fastify.get('/explore', async (request, reply) => {
+    try {
+      const { authorization } = request.headers as {
+        authorization?: BearerToken;
+      };
+
+      const token = authorization?.replace('Bearer ', '');
+      if (token == null) {
+        return reply.status(400).send({ error: 'Token not provided.' });
+      }
+      const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+      if (decodedToken == null) {
+        return reply.status(400).send({ error: 'Token is invalid.' });
+      }
+
+      const prismaClient = new PrismaClient();
+      const dbRooms = await prismaClient.room.findMany({
+        include: {
+          users: true,
+          channels: {
+            include: {
+              posts: {
+                include: {
+                  author: true
+                }
+              }
+            }
+          }
+        }
+      });
+
+      if (dbRooms == null) {
+        console.error(`Rooms could not be found.`);
+        return reply.status(500).send();
+      }
+      const roomInfos: RoomInfo[] = dbRooms.map((dbRoom) => ({
+        id: dbRoom.id,
+        name: dbRoom.name,
+        isJoined: dbRoom.users.some(
+          (user) => user.email === decodedToken.email
+        ),
+        userCount: dbRoom.users.length
+      }));
+
+      const res: ExploreAPIData = { roomInfos };
       reply.status(200).send(res);
     } catch (error) {
       reply.status(500).send({ error });
