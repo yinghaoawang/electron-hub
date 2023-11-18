@@ -6,7 +6,7 @@ export default function useFetch() {
     return fetch(input, {
       headers: { Authorization: `Bearer ${await authToken}` },
       ...init
-    }).then((res) => res.json());
+    });
   };
   return authenticatedFetch;
 }

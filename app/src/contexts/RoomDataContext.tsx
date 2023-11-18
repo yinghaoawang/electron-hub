@@ -95,14 +95,14 @@ export function RoomDataProvider({ children }: { children: React.ReactNode }) {
 
   const fetchRoomData = async (id: bigint) => {
     try {
-      const res: RoomIdAPIResData = await fetch(`${VITE_API_URL}/room/${id}`, {
+      const res = await fetch(`${VITE_API_URL}/room/${id}`, {
         method: 'GET'
       });
 
-      if (res == null || res?.room == null)
-        throw new Error('Unable to fetch room data');
+      if (!res.ok) throw new Error('Unable to fetch room data');
 
-      setRoomData(res.room);
+      const resData: RoomIdAPIResData = await res.json();
+      setRoomData(resData.room);
     } catch (err) {
       console.error(err);
     }
@@ -110,14 +110,13 @@ export function RoomDataProvider({ children }: { children: React.ReactNode }) {
 
   const fetchAllRoomData = async () => {
     try {
-      const res: RoomsAPIResData = await fetch(`${VITE_API_URL}/rooms`, {
+      const res = await fetch(`${VITE_API_URL}/rooms`, {
         method: 'GET'
       });
+      if (!res.ok) throw new Error('Unable to fetch room list data');
+      const resData: RoomsAPIResData = await res.json();
 
-      if (res == null || res?.rooms == null)
-        throw new Error('Unable to fetch room list data');
-
-      setRoomsData(res.rooms);
+      setRoomsData(resData.rooms);
     } catch (err) {
       console.error(err);
     }

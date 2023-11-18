@@ -19,10 +19,13 @@ export default function LeftSidebar() {
         const data: LeaveRoomAPIData = {
           roomId: currentRoom.id
         };
-        await fetch(`${VITE_API_URL}/leave-room`, {
+        const res = await fetch(`${VITE_API_URL}/leave-room`, {
           method: 'POST',
           body: JSON.stringify(data)
         });
+        if (!res.ok) {
+          throw new Error('Unable to leave room');
+        }
         removeRoomData(currentRoom.id);
       } catch (error) {
         console.error('Unable to leave room', error);

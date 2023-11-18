@@ -24,14 +24,18 @@ const RoomInfoRow = ({ roomInfo }: { roomInfo: RoomInfo }) => {
         const data: JoinRoomAPIData = {
           roomId
         };
-        const res: JoinRoomResAPIData = await fetch(
+        const res = await fetch(
           `${VITE_API_URL}/join-room`,
           {
             method: 'POST',
             body: JSON.stringify(data)
           }
         );
-        setRoomData(res.room);
+        if (!res.ok) {
+          throw new Error('Unable to join room');
+        }
+        const resData: JoinRoomResAPIData = await res.json();
+        setRoomData(resData.room);
         setIsJoined(true);
       } catch (error) {
         console.error('Unable to join room', error);
@@ -65,11 +69,17 @@ export default function ExplorePage() {
   const fetch = useFetch();
   useEffect(() => {
     const fetchData = async () => {
-      const res: ExploreAPIData = await fetch(`${VITE_API_URL}/explore`, {
-        method: 'GET'
-      });
-      setRoomInfos(res.roomInfos);
-      setIsLoading(false);
+      try {
+        const res = await fetch(`${VITE_API_URL}/explore`, {
+          method: 'GET'
+        });
+        if (!res.ok) throw new Error('Unable to fetch room list data');
+        const resData: ExploreAPIData = await res.json();
+        setRoomInfos(resData.roomInfos);
+        setIsLoading(false);
+      } catch (error) {
+        console.error(error);
+      }
     };
     fetchData();
   }, []);
