@@ -21,6 +21,7 @@ import {
 } from 'firebase/auth';
 import firebaseAdmin from 'firebase-admin';
 
+// Converts a prisma room to a room
 function dbRoomToRoom(dbRoom: any): Room {
   return {
     id: dbRoom.id,
@@ -197,30 +198,48 @@ export async function buildFastifyServer() {
   });
 
   fastify.get('/rooms', async (request, reply) => {
-    const prismaClient = new PrismaClient();
-    const dbRooms = await prismaClient.room.findMany({
-      include: {
-        users: true,
-        channels: {
-          include: {
-            posts: {
-              include: {
-                author: true
+    try {
+      const { authorization } = request.headers as {
+        authorization?: BearerToken;
+      };
+
+      const token = authorization?.replace('Bearer ', '');
+      if (token == null) {
+        return reply.status(400).send({ error: 'Token not provided.' });
+      }
+      const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+      if (decodedToken == null) {
+        return reply.status(400).send({ error: 'Token is invalid.' });
+      }
+
+      const prismaClient = new PrismaClient();
+      const dbRooms = await prismaClient.room.findMany({
+        where: { users: { some: { email: decodedToken.email } } },
+        include: {
+          users: true,
+          channels: {
+            include: {
+              posts: {
+                include: {
+                  author: true
+                }
               }
             }
           }
         }
+      });
+
+      if (dbRooms == null) {
+        console.error(`Rooms could not be found.`);
+        return reply.status(500).send();
       }
-    });
+      const rooms: Room[] = dbRooms.map((dbRoom) => dbRoomToRoom(dbRoom));
 
-    if (dbRooms == null) {
-      console.error(`Rooms could not be found.`);
-      return reply.status(500).send();
+      const res: RoomsAPIResData = { rooms };
+      reply.status(200).send(res);
+    } catch (error) {
+      reply.status(500).send({ error });
     }
-    const rooms: Room[] = dbRooms.map((dbRoom) => dbRoomToRoom(dbRoom));
-
-    const res: RoomsAPIResData = { rooms };
-    reply.status(200).send(res);
   });
 
   fastify.get(
