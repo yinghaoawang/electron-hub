@@ -23,11 +23,7 @@ export default function RoomPage() {
     setCurrentRoomById(BigInt(roomId));
   }, [roomId, roomDataArray]);
 
-  useEffect(() => {
-    const postsContainer = postsContainerRef.current;
-    if (!postsContainer) return;
-    postsContainer.scrollTop = postsContainer.scrollHeight;
-  }, [currentRoom]);
+  const reversedPosts = currentRoom?.channels?.[0]?.posts?.slice().reverse();
 
   return (
     <div className='flex page-content'>
@@ -39,9 +35,9 @@ export default function RoomPage() {
             </div>
             <div
               ref={postsContainerRef}
-              className='overflow-auto py-4 flex flex-col gap-2 grow'
+              className='overflow-auto py-4 flex flex-col-reverse gap-2 grow'
             >
-              {currentRoom.channels?.[0]?.posts?.map((post) => (
+              {reversedPosts.map((post) => (
                 <div key={post.id} className='px-4'>
                   <span className='font-semibold mr-3'>
                     {post.user.displayName}
