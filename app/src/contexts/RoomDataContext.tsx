@@ -1,12 +1,12 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import {
   Room,
   RoomIdAPIResData,
   RoomMessageServerSocketData,
-  RoomMessageSocketData,
   RoomsAPIResData
 } from '../../../shared/shared-types';
 import useFetch from '../hooks/useFetch';
+import { useAuth } from './AuthContext';
 
 const { VITE_API_URL } = import.meta.env;
 
@@ -23,6 +23,7 @@ const RoomDataContext = createContext<RoomDataContent>(null);
 export function RoomDataProvider({ children }: { children: React.ReactNode }) {
   const fetch = useFetch();
   const [roomDataArray, setRoomDataArray] = useState<Room[]>([]);
+  const { authUser } = useAuth();
   const getRoomData = (id: bigint) => {
     return roomDataArray.find((room) => room.id == id);
   };
@@ -108,6 +109,12 @@ export function RoomDataProvider({ children }: { children: React.ReactNode }) {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    if (authUser == null) {
+      setRoomDataArray([]);
+    }
+  }, [authUser]);
 
   const value = {
     getRoomData,

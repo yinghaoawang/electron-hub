@@ -15,6 +15,7 @@ const { VITE_SOCKET_URL, VITE_SOCKET_PATH } = import.meta.env;
 type WebSocketContent = {
   isSocketLive: boolean;
   isSocketConnecting: boolean;
+  disconnectSocket: () => void;
   sendMessage: (message: string) => void;
 };
 
@@ -32,6 +33,13 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const { currentRoom, currentChannel } = useCurrentRoom();
 
   const getSocket = () => socketWrapper.socket;
+
+  const disconnectSocket = () => {
+    const socket = getSocket();
+    if (socket == null) return;
+    socket.disconnect();
+    socketWrapper.socket = null;
+  };
 
   const sendMessage = (message: string) => {
     const socket = getSocket();
@@ -91,7 +99,13 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     });
   }, [roomDataArray]);
 
-  const value = { isSocketLive, isSocketConnecting, getSocket, sendMessage };
+  const value = {
+    isSocketLive,
+    isSocketConnecting,
+    getSocket,
+    sendMessage,
+    disconnectSocket
+  };
   return (
     <WebSocketContext.Provider value={value}>
       {children}

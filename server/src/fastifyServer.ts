@@ -250,6 +250,62 @@ export async function buildFastifyServer() {
     }
   });
 
+  fastify.post('/join-room', async (request, reply) => {
+    try {
+      const { authorization } = request.headers as {
+        authorization?: BearerToken;
+      };
+
+      const token = authorization?.replace('Bearer ', '');
+      if (token == null) {
+        return reply.status(400).send({ error: 'Token not provided.' });
+      }
+      const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+      if (decodedToken == null) {
+        return reply.status(400).send({ error: 'Token is invalid.' });
+      }
+
+      const { roomId } = JSON.parse(request.body as string) as {
+        roomId?: bigint;
+      };
+      if (roomId == null) {
+        return reply.status(400).send({ error: 'Room id not provided.' });
+      }
+
+      const prismaClient = new PrismaClient();
+      const dbRoom = await prismaClient.room.findUnique({
+        where: { id: roomId },
+        include: {
+          users: true
+        }
+      });
+      if (dbRoom == null) {
+        throw new Error(`Room could not be found.`);
+      }
+      const matchingUser = dbRoom.users.find(
+        (user) => user.email === decodedToken.email
+      );
+      if (matchingUser != null) {
+        throw new Error(`User is already in this room.`);
+      }
+
+      await prismaClient.room.update({
+        where: { id: roomId },
+        data: {
+          users: {
+            connect: {
+              email: decodedToken.email
+            }
+          }
+        }
+      });
+
+      reply.status(200).send({ message: 'Successfully joined room.' });
+    } catch (error) {
+      reply.status(500).send({ error });
+    }
+  });
+
   fastify.get('/rooms', async (request, reply) => {
     try {
       const { authorization } = request.headers as {
