@@ -98,8 +98,23 @@ export function createSocketListeners(io: Server) {
       (BigInt.prototype as any).toJSON = function () {
         return this.toString();
       };
-      console.log(res);
-      socket.emit('roomMessageServer', res);
+
+      // get all sockets from pool and check if their id is in dbRoom
+      const socketMap: Map<string, Socket> = io.sockets.sockets;
+      for (const [key, _socket] of socketMap.entries()) {
+        const user = _socket?.user;
+        if (user == null) {
+          continue;
+        }
+        const matchingUser = dbRoom.users.find(
+          (dbUser) => dbUser.id === user.id
+        );
+        if (matchingUser == null) {
+          continue;
+        }
+
+        _socket.emit('roomMessageServer', res);
+      }
     });
     console.log('connected');
   });

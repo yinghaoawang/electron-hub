@@ -37,7 +37,7 @@ export default function RoomPage() {
               ref={postsContainerRef}
               className='overflow-auto py-4 flex flex-col-reverse gap-2 grow'
             >
-              {reversedPosts.map((post) => (
+              {reversedPosts?.map((post) => (
                 <div key={post.id} className='px-4'>
                   <span className='font-semibold mr-3'>
                     {post.user.displayName}
