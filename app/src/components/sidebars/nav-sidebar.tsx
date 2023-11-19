@@ -36,6 +36,13 @@ export default function NavSidebar() {
           </Link>
         ))}
         <Link
+          to={'/video'}
+          onClick={() => setCurrentRoomById(null)}
+          className='nav-icon h-12 w-12 flex items-center justify-center rounded-full !bg-purple-700'
+        >
+          Video
+        </Link>
+        <Link
           to={'/explore'}
           onClick={() => setCurrentRoomById(null)}
           className='nav-icon h-12 w-12 flex items-center justify-center rounded-full !bg-green-700'

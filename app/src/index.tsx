@@ -19,6 +19,7 @@ import RoomPage from './pages/room';
 import { RoomDataProvider } from './contexts/RoomDataContext';
 import { CurrentRoomProvider } from './contexts/CurrentRoomContext';
 import ExplorePage from './pages/explore';
+import VideoPage from './pages/video';
 
 const routes = [
   {
@@ -71,6 +72,10 @@ const routes = [
       {
         path: '/explore',
         element: <ExplorePage />
+      },
+      {
+        path: '/video',
+        element: <VideoPage />
       }
     ]
   }
