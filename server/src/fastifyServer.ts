@@ -14,7 +14,11 @@ import {
   BearerToken,
   RoomInfo,
   ExploreAPIData,
-  JoinRoomResAPIData
+  JoinRoomResAPIData,
+  VideoAPIResData,
+  VideoAPIBody,
+  SignupAPIBody,
+  LoginAPIBody
 } from 'shared/shared-types';
 import {
   getAuth,
@@ -23,6 +27,7 @@ import {
   getIdToken
 } from 'firebase/auth';
 import firebaseAdmin from 'firebase-admin';
+import { createLKToken } from './livekit';
 
 // Converts a prisma room to a room
 function dbRoomToRoom(dbRoom: any): Room {
@@ -111,10 +116,9 @@ export async function buildFastifyServer() {
 
   fastify.post('/login', async (request, reply) => {
     try {
-      const { email, password } = JSON.parse(request.body as string) as {
-        email?: string;
-        password?: string;
-      };
+      const { email, password } = JSON.parse(
+        request.body as string
+      ) as LoginAPIBody;
       if (email == null || password == null) {
         return reply
           .status(400)
@@ -156,11 +160,7 @@ export async function buildFastifyServer() {
     try {
       const { displayName, email, password } = JSON.parse(
         request.body as string
-      ) as {
-        displayName?: string;
-        email?: string;
-        password?: string;
-      };
+      ) as SignupAPIBody;
       if (displayName == null || email == null || password == null) {
         return reply
           .status(400)
@@ -194,6 +194,46 @@ export async function buildFastifyServer() {
         email: dbUser.email
       };
       const res: SignupAPIResData = { user, token };
+      reply.status(200).send(res);
+    } catch (error) {
+      reply.status(500).send({ error });
+    }
+  });
+
+  fastify.post('/video', async (request, reply) => {
+    try {
+      const { authorization } = request.headers as {
+        authorization?: BearerToken;
+      };
+
+      const token = authorization?.replace('Bearer ', '');
+      if (token == null) {
+        return reply.status(400).send({ error: 'Token not provided.' });
+      }
+      const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+      if (decodedToken == null) {
+        return reply.status(400).send({ error: 'Token is invalid.' });
+      }
+
+      const { roomId } = JSON.parse(request.body as string) as VideoAPIBody;
+      if (roomId == null) {
+        return reply.status(400).send({ error: 'Room id not provided.' });
+      }
+
+      const dbUser = await new PrismaClient().user.findUnique({
+        where: { email: decodedToken.email }
+      });
+      if (dbUser == null) {
+        throw new Error('User not found.');
+      }
+
+      const lkToken = createLKToken({
+        roomName: roomId.toString(),
+        participantName: dbUser.displayName
+      });
+
+      const res: VideoAPIResData = { lkToken };
+      console.log(res);
       reply.status(200).send(res);
     } catch (error) {
       reply.status(500).send({ error });

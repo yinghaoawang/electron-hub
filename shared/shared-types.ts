@@ -49,9 +49,18 @@ export interface User {
 export interface MeAPIResData {
   user: DetailedUser;
 }
+export interface LoginAPIBody {
+  email: string;
+  password: string;
+}
 export interface LoginAPIResData {
   user: DetailedUser;
   token: string;
+}
+export interface SignupAPIBody {
+  displayName: string;
+  email: string;
+  password: string;
 }
 export interface SignupAPIResData {
   user: DetailedUser;
@@ -74,6 +83,12 @@ export interface JoinRoomResAPIData {
 }
 export interface LeaveRoomAPIData {
   roomId: bigint;
+}
+export interface VideoAPIBody {
+  roomId: bigint;
+}
+export interface VideoAPIResData {
+  lkToken: string;
 }
 
 // Socket payload types

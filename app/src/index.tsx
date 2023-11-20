@@ -21,6 +21,11 @@ import { CurrentRoomProvider } from './contexts/CurrentRoomContext';
 import ExplorePage from './pages/explore';
 import VideoPage from './pages/video';
 
+// Tells JSON.stringify to use BigInt.toString() instead of converting to an object
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
 const routes = [
   {
     path: '/sign-in/*',

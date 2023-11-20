@@ -2,8 +2,10 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   DetailedUser,
+  LoginAPIBody,
   LoginAPIResData,
   MeAPIResData,
+  SignupAPIBody,
   SignupAPIResData
 } from '../../../shared/shared-types';
 import { sendNotification } from '../_lib/notifications';
@@ -104,9 +106,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     onError?: () => unknown
   ) => {
     try {
+      const body: LoginAPIBody = { email, password };
       const res = await fetch(`${VITE_API_URL}/login`, {
         method: 'POST',
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify(body)
       });
       if (!res.ok) {
         const { error } = await res.json();
@@ -132,9 +135,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     onError?: () => unknown
   ) => {
     try {
+      const body: SignupAPIBody = { displayName, email, password };
       const res = await fetch(`${VITE_API_URL}/signup`, {
         method: 'POST',
-        body: JSON.stringify({ displayName, email, password })
+        body: JSON.stringify(body)
       });
       if (!res.ok) {
         const { error } = await res.json();
