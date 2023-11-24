@@ -23,6 +23,7 @@ export interface Channel {
   id: bigint;
   name: string;
   posts: PostWithUser[];
+  type: ChannelType;
 }
 
 export interface Post {
@@ -106,8 +107,13 @@ export interface RoomMessageServerSocketData {
   channelId: bigint;
 }
 
-// Make sure this is in sync with /server/schema.prisma
+// Make sure these enums are in sync with /server/schema.prisma
 export enum Role {
   ADMIN = 'ADMIN',
   USER = 'USER'
+}
+
+export enum ChannelType {
+  TEXT = 'TEXT',
+  VOICE = 'VOICE'
 }

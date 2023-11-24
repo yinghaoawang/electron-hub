@@ -37,6 +37,7 @@ function dbRoomToRoom(dbRoom: any): Room {
     channels: dbRoom.channels.map((channel: any) => ({
       id: channel.id,
       name: channel.name,
+      type: channel.type,
       posts: channel.posts.map((post: any) => ({
         id: post.id,
         authorId: post.authorId,
@@ -233,7 +234,6 @@ export async function buildFastifyServer() {
       });
 
       const res: VideoAPIResData = { lkToken };
-      console.log(res);
       reply.status(200).send(res);
     } catch (error) {
       reply.status(500).send({ error });

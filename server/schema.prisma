@@ -17,12 +17,13 @@ model Room {
 }
 
 model Channel {
-  id        BigInt   @id @default(autoincrement())
+  id        BigInt      @id @default(autoincrement())
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  room      Room     @relation(fields: [roomId], references: [id])
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  room      Room        @relation(fields: [roomId], references: [id])
   roomId    BigInt
+  type      ChannelType @default(TEXT)
   posts     Post[]
 }
 
@@ -68,4 +69,9 @@ model Profile {
 enum Role {
   ADMIN
   USER
+}
+
+enum ChannelType {
+  TEXT
+  VOICE
 }

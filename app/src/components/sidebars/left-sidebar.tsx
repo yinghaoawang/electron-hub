@@ -2,7 +2,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useCurrentRoom } from '../../contexts/CurrentRoomContext';
 import placeholderPfp from '../../_assets/placeholder.jpg';
 import { cn } from '../../_lib/utils';
-import { LeaveRoomAPIData } from '../../../../shared/shared-types';
+import { LeaveRoomAPIData, ChannelType } from '../../../../shared/shared-types';
 import { useRoomData } from '../../contexts/RoomDataContext';
 import useFetch from '../../hooks/useFetch';
 
@@ -48,7 +48,9 @@ export default function LeftSidebar() {
               channel == currentChannel && 'current-channel'
             )}
           >
-            <span className='mr-2'>#</span>
+            <span className='mr-2'>
+              {channel.type === ChannelType.VOICE ? '🔊' : '💬'}
+            </span>
             <span>{channel.name}</span>
           </button>
         ))}
