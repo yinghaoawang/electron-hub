@@ -1,12 +1,13 @@
-import { Socket } from 'types';
 import {
   AuthSocketData,
   RoomMessageServerSocketData,
-  RoomMessageSocketData
+  RoomMessageSocketData,
+  Role,
 } from 'shared/shared-types';
+import { Socket } from 'types';
 import { Server } from 'socket.io';
 import firebaseAdmin from 'firebase-admin';
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 export function createSocketListeners(io: Server) {
   io.on('connection', (socket: Socket) => {
@@ -41,6 +42,7 @@ export function createSocketListeners(io: Server) {
       const user = {
         id: dbUser.id,
         displayName: dbUser.displayName,
+        email: dbUser.email,
         role: dbUser.role as Role
       };
 
@@ -50,6 +52,11 @@ export function createSocketListeners(io: Server) {
     });
 
     socket.on('roomMessage', async (data: RoomMessageSocketData) => {
+      if (socket.user == null) {
+        console.error('User is not authenticated');
+        socket.emit('error', { message: 'User is not authenticated' });
+        return;
+      }
       // check if user is in room
       const dbRoom = await new PrismaClient().room.findUnique({
         where: { id: data.roomId },

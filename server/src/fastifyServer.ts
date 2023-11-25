@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import Fastify, { FastifyRequest } from 'fastify';
+import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
 import cors from 'cors';
 import {
   User,
@@ -28,6 +28,7 @@ import {
 } from 'firebase/auth';
 import firebaseAdmin from 'firebase-admin';
 import { createLKToken } from './livekit';
+import { AuthenticatedRequest } from 'types';
 
 // Converts a prisma room to a room
 function dbRoomToRoom(dbRoom: any): Room {
@@ -57,26 +58,42 @@ function dbRoomToRoom(dbRoom: any): Room {
   };
 }
 
+const authenticateMiddleware = async (
+  request: AuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const { authorization } = request.headers as {
+      authorization?: BearerToken;
+    };
+
+    const token = authorization?.replace('Bearer ', '');
+    if (token == null) {
+      throw new Error('Token not provided.');
+    }
+    const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+    request.decodedToken = decodedToken;
+  } catch (error) {
+    // reply.status(401).send({ error });
+  }
+};
+
 export async function buildFastifyServer() {
   const fastify = Fastify();
   await fastify.register(require('@fastify/express'));
 
   fastify.use(cors());
 
-  fastify.post('/me', async (request, reply) => {
-    try {
-      const { authorization } = request.headers as {
-        authorization?: BearerToken;
-      };
+  fastify.addHook('preHandler', authenticateMiddleware);
 
-      const token = authorization?.replace('Bearer ', '');
-      if (token == null) {
-        return reply.status(400).send({ error: 'Token not provided.' });
+  fastify.post('/me', async (request: AuthenticatedRequest, reply) => {
+    try {
+      if (request.decodedToken == null) {
+        return reply.status(401).send({ message: 'Unauthorized' });
       }
-      const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
 
       const dbUser = await new PrismaClient().user.findUnique({
-        where: { email: decodedToken.email }
+        where: { email: request.decodedToken.email }
       });
       if (dbUser == null) {
         throw new Error('User not found.');
@@ -96,18 +113,13 @@ export async function buildFastifyServer() {
     }
   });
 
-  fastify.post('/logout', async (request, reply) => {
+  fastify.post('/logout', async (request: AuthenticatedRequest, reply) => {
     try {
-      const { authorization } = request.headers as {
-        authorization?: BearerToken;
-      };
-
-      const token = authorization?.replace('Bearer ', '');
-      if (token == null) {
-        return reply.status(400).send({ error: 'Token not provided.' });
+      if (request.decodedToken == null) {
+        return reply.status(401).send({ message: 'Unauthorized' });
       }
-      const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
-      await firebaseAdmin.auth().revokeRefreshTokens(decodedToken.uid);
+
+      await firebaseAdmin.auth().revokeRefreshTokens(request.decodedToken.uid);
 
       reply.status(200).send();
     } catch (error) {
@@ -120,6 +132,7 @@ export async function buildFastifyServer() {
       const { email, password } = JSON.parse(
         request.body as string
       ) as LoginAPIBody;
+      console.log(email, password);
       if (email == null || password == null) {
         return reply
           .status(400)
@@ -201,19 +214,10 @@ export async function buildFastifyServer() {
     }
   });
 
-  fastify.post('/video', async (request, reply) => {
+  fastify.post('/video', async (request: AuthenticatedRequest, reply) => {
     try {
-      const { authorization } = request.headers as {
-        authorization?: BearerToken;
-      };
-
-      const token = authorization?.replace('Bearer ', '');
-      if (token == null) {
-        return reply.status(400).send({ error: 'Token not provided.' });
-      }
-      const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
-      if (decodedToken == null) {
-        return reply.status(400).send({ error: 'Token is invalid.' });
+      if (request.decodedToken == null) {
+        return reply.status(401).send({ message: 'Unauthorized' });
       }
 
       const { roomId } = JSON.parse(request.body as string) as VideoAPIBody;
@@ -222,7 +226,7 @@ export async function buildFastifyServer() {
       }
 
       const dbUser = await new PrismaClient().user.findUnique({
-        where: { email: decodedToken.email }
+        where: { email: request.decodedToken.email }
       });
       if (dbUser == null) {
         throw new Error('User not found.');
@@ -240,19 +244,10 @@ export async function buildFastifyServer() {
     }
   });
 
-  fastify.get('/explore', async (request, reply) => {
+  fastify.get('/explore', async (request: AuthenticatedRequest, reply) => {
     try {
-      const { authorization } = request.headers as {
-        authorization?: BearerToken;
-      };
-
-      const token = authorization?.replace('Bearer ', '');
-      if (token == null) {
-        return reply.status(400).send({ error: 'Token not provided.' });
-      }
-      const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
-      if (decodedToken == null) {
-        return reply.status(400).send({ error: 'Token is invalid.' });
+      if (request.decodedToken == null) {
+        return reply.status(401).send({ message: 'Unauthorized' });
       }
 
       const prismaClient = new PrismaClient();
@@ -279,7 +274,7 @@ export async function buildFastifyServer() {
         id: dbRoom.id,
         name: dbRoom.name,
         isJoined: dbRoom.users.some(
-          (user) => user.email === decodedToken.email
+          (user) => user.email === request.decodedToken?.email
         ),
         userCount: dbRoom.users.length
       }));
@@ -291,19 +286,10 @@ export async function buildFastifyServer() {
     }
   });
 
-  fastify.post('/leave-room', async (request, reply) => {
+  fastify.post('/leave-room', async (request: AuthenticatedRequest, reply) => {
     try {
-      const { authorization } = request.headers as {
-        authorization?: BearerToken;
-      };
-
-      const token = authorization?.replace('Bearer ', '');
-      if (token == null) {
-        return reply.status(400).send({ error: 'Token not provided.' });
-      }
-      const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
-      if (decodedToken == null) {
-        return reply.status(400).send({ error: 'Token is invalid.' });
+      if (request.decodedToken == null) {
+        return reply.status(401).send({ message: 'Unauthorized' });
       }
 
       const { roomId } = JSON.parse(request.body as string) as {
@@ -324,7 +310,7 @@ export async function buildFastifyServer() {
         throw new Error(`Room could not be found.`);
       }
       const matchingUser = dbRoom.users.find(
-        (user) => user.email === decodedToken.email
+        (user) => user.email === request.decodedToken?.email
       );
       if (matchingUser == null) {
         throw new Error(`User is not in this room.`);
@@ -334,7 +320,7 @@ export async function buildFastifyServer() {
         data: {
           users: {
             disconnect: {
-              email: decodedToken.email
+              email: request.decodedToken?.email
             }
           }
         }
@@ -345,19 +331,10 @@ export async function buildFastifyServer() {
     }
   });
 
-  fastify.post('/join-room', async (request, reply) => {
+  fastify.post('/join-room', async (request: AuthenticatedRequest, reply) => {
     try {
-      const { authorization } = request.headers as {
-        authorization?: BearerToken;
-      };
-
-      const token = authorization?.replace('Bearer ', '');
-      if (token == null) {
-        return reply.status(400).send({ error: 'Token not provided.' });
-      }
-      const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
-      if (decodedToken == null) {
-        return reply.status(400).send({ error: 'Token is invalid.' });
+      if (request.decodedToken == null) {
+        return reply.status(401).send({ message: 'Unauthorized' });
       }
 
       const { roomId } = JSON.parse(request.body as string) as {
@@ -378,7 +355,7 @@ export async function buildFastifyServer() {
         throw new Error(`Room could not be found.`);
       }
       const matchingUser = dbRoom.users.find(
-        (user) => user.email === decodedToken.email
+        (user) => user.email === request.decodedToken?.email
       );
       if (matchingUser != null) {
         throw new Error(`User is already in this room.`);
@@ -389,7 +366,7 @@ export async function buildFastifyServer() {
         data: {
           users: {
             connect: {
-              email: decodedToken.email
+              email: request.decodedToken.email
             }
           }
         },
@@ -415,24 +392,15 @@ export async function buildFastifyServer() {
     }
   });
 
-  fastify.get('/rooms', async (request, reply) => {
+  fastify.get('/rooms', async (request: AuthenticatedRequest, reply) => {
     try {
-      const { authorization } = request.headers as {
-        authorization?: BearerToken;
-      };
-
-      const token = authorization?.replace('Bearer ', '');
-      if (token == null) {
-        return reply.status(400).send({ error: 'Token not provided.' });
-      }
-      const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
-      if (decodedToken == null) {
-        return reply.status(400).send({ error: 'Token is invalid.' });
+      if (request.decodedToken == null) {
+        return reply.status(401).send({ message: 'Unauthorized' });
       }
 
       const prismaClient = new PrismaClient();
       const dbRooms = await prismaClient.room.findMany({
-        where: { users: { some: { email: decodedToken.email } } },
+        where: { users: { some: { email: request.decodedToken?.email } } },
         include: {
           users: true,
           channels: {
@@ -462,7 +430,14 @@ export async function buildFastifyServer() {
 
   fastify.get(
     '/room/:roomId',
-    async (request: FastifyRequest<{ Params: { roomId: bigint } }>, reply) => {
+    async (
+      request: AuthenticatedRequest<{ Params: { roomId: bigint } }>,
+      reply
+    ) => {
+      if (request.decodedToken == null) {
+        return reply.status(401).send({ message: 'Unauthorized' });
+      }
+
       const prismaClient = new PrismaClient();
       const dbRoom = await prismaClient.room.findUnique({
         where: { id: request.params.roomId },
