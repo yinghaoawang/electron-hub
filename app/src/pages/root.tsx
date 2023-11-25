@@ -10,7 +10,9 @@ export default function RootPage() {
   useEffect(() => {
     const fetchData = async () => {
       const res = await fetch(`${VITE_API_URL}`, { method: 'GET' });
-      console.log(res);
+      if (!res.ok) throw new Error('Unable to fetch data');
+      const resData = await res.json();
+      console.log(resData);
     };
     fetchData();
   }, []);
