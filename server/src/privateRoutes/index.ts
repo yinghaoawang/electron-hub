@@ -1,8 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import {
-  FastifyReply,
-  FastifyInstance
-} from 'fastify';
+import { FastifyReply, FastifyInstance } from 'fastify';
 import {
   Room,
   RoomIdAPIResData,
@@ -14,7 +11,8 @@ import {
   ExploreAPIData,
   JoinRoomResAPIData,
   VideoAPIResData,
-  VideoAPIBody} from 'shared/shared-types';
+  VideoAPIBody
+} from 'shared/shared-types';
 import firebaseAdmin from 'firebase-admin';
 import { createLKToken } from '../livekit';
 import { AuthenticatedRequest } from 'types';
