@@ -13,6 +13,7 @@ import { useCurrentRoom } from './CurrentRoomContext';
 const { VITE_SOCKET_URL, VITE_SOCKET_PATH } = import.meta.env;
 
 type WebSocketContent = {
+  getSocket: () => Socket;
   isSocketLive: boolean;
   isSocketConnecting: boolean;
   disconnectSocket: () => void;
@@ -99,7 +100,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     });
   }, [roomDataArray]);
 
-  const value = {
+  const value: WebSocketContent = {
     isSocketLive,
     isSocketConnecting,
     getSocket,

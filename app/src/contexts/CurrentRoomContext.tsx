@@ -57,7 +57,7 @@ export function CurrentRoomProvider({
     setCurrentChannelId(id);
   };
 
-  const value = {
+  const value: CurrentRoomContent = {
     currentRoom,
     setCurrentRoomById,
     currentChannel,

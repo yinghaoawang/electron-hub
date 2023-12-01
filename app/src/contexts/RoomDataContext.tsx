@@ -128,7 +128,7 @@ export function RoomDataProvider({ children }: { children: React.ReactNode }) {
     }
   }, [authUser]);
 
-  const value = {
+  const value: RoomDataContent = {
     getRoomData,
     setRoomData,
     removeRoomData,

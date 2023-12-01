@@ -26,13 +26,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return isDarkMode;
   };
   const [theme, setTheme] = useState<Theme>(null);
+  const value: ThemeContent = {
+    theme,
+    setTheme,
+    resetToSystemTheme,
+    toggleTheme
+  };
 
   return (
-    <ThemeContext.Provider
-      value={{ theme, setTheme, resetToSystemTheme, toggleTheme }}
-    >
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 }
 export function useTheme() {

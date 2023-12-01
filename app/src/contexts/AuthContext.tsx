@@ -182,7 +182,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     fetchAuthUser();
   }, []);
 
-  const value = {
+  const value: AuthContent = {
     isLoggedIn,
     isLoading,
     authUser,
