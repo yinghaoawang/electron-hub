@@ -13,8 +13,9 @@ export const getUserFromRequest = async (
     };
 
     const token = authorization?.replace('Bearer ', '');
-    if (token == null) {
-      throw new Error('Token not provided.');
+    if (token == null || token == 'null') {
+      // console.error('Token is not provided');
+      return null;
     }
     return await getUserFromToken(token);
   } catch (error) {
@@ -25,7 +26,11 @@ export const getUserFromRequest = async (
 
 export const getUserFromToken = async (token: string) => {
   try {
-    const jwtPayload: TokenPayload = await verifyToken(token);
+    const jwtPayload: TokenPayload | null = await verifyToken(token);
+    if (jwtPayload == null) {
+      throw new Error('Token is invalid.');
+    }
+
     const dbUser = await new PrismaClient().user.findUnique({
       where: { email: jwtPayload.email }
     });
@@ -52,11 +57,11 @@ export const authenticateMiddleware = async (
   try {
     const user = await getUserFromRequest(request);
     if (user == null) {
-      throw new Error('Unauthorized.');
+      return reply.status(401).send({ message: 'Unauthorized.' });
     }
     request.user = user;
   } catch (error) {
     console.log(error);
-    reply.status(401).send({ error });
+    reply.status(401).send({ message: 'Unauthorized.' });
   }
 };

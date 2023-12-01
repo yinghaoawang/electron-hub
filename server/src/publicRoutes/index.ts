@@ -18,7 +18,6 @@ const loginHandler = async (request: FastifyRequest, reply: FastifyReply) => {
     const { email, password } = JSON.parse(
       request.body as string
     ) as LoginAPIBody;
-    console.log(email, password);
     if (email == null || password == null) {
       return reply
         .status(400)

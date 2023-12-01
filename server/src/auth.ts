@@ -16,6 +16,8 @@ const createToken = (email: string) => {
 };
 
 export const verifyToken = (token: string) => {
+  if (token == null) return null;
+
   const payload: TokenPayload = jwt.verify(
     token,
     JWT_SECRET
