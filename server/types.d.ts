@@ -1,7 +1,7 @@
 import { FastifyRequest } from 'fastify';
-import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
 import { DetailedUser } from 'shared/shared-types';
 import { Socket as SocketIOSocket } from 'socket.io';
+import { JwtPayload } from 'jsonwebtoken';
 import {
   FastifyRequest as BaseFastifyRequest,
   RawServerBase,
@@ -43,5 +43,11 @@ export interface AuthenticatedRequest<
       ResolveFastifyRequestType<TypeProvider, SchemaCompiler, RouteGeneric>
     >,
     FastifyRequest {
-  decodedToken?: DecodedIdToken;
+  user?: DetailedUser;
+}
+
+export interface TokenPayload extends JwtPayload {
+  email: string;
+  iat: number;
+  exp: number;
 }

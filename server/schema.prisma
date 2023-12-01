@@ -41,15 +41,16 @@ model Post {
 }
 
 model User {
-  id          BigInt   @id @default(autoincrement())
-  email       String   @unique
-  displayName String   @unique
-  role        Role     @default(USER)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  profile     Profile?
-  posts       Post[]
-  rooms       Room[]   @relation("RoomToUser")
+  id             BigInt   @id @default(autoincrement())
+  email          String   @unique
+  displayName    String   @unique
+  hashedPassword String
+  role           Role     @default(USER)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  profile        Profile?
+  posts          Post[]
+  rooms          Room[]   @relation("RoomToUser")
 
   @@index([email])
 }

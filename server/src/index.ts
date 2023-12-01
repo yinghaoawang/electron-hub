@@ -15,9 +15,6 @@ const {
 import { buildFastifyServer } from './fastifyServer';
 import { FastifyInstance } from 'fastify';
 import { buildSocketServer } from './socketServer';
-import { initializeFirebase } from './firebase';
-
-initializeFirebase();
 
 buildFastifyServer().then((fastify: FastifyInstance) => {
   fastify.listen(

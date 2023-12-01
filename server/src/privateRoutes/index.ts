@@ -13,7 +13,6 @@ import {
   VideoAPIResData,
   VideoAPIBody
 } from 'shared/shared-types';
-import firebaseAdmin from 'firebase-admin';
 import { createLKToken } from '../livekit';
 import { AuthenticatedRequest } from 'types';
 import { dbRoomToRoom } from '../utils';
@@ -23,12 +22,12 @@ const privateRoutes = async (fastify: FastifyInstance) => {
     '/me',
     async (request: AuthenticatedRequest, reply: FastifyReply) => {
       try {
-        if (request.decodedToken == null) {
+        if (request.user == null) {
           return reply.status(401).send({ message: 'Unauthorized' });
         }
 
         const dbUser = await new PrismaClient().user.findUnique({
-          where: { email: request.decodedToken.email }
+          where: { email: request.user.email }
         });
         if (dbUser == null) {
           throw new Error('User not found.');
@@ -53,13 +52,9 @@ const privateRoutes = async (fastify: FastifyInstance) => {
     '/logout',
     async (request: AuthenticatedRequest, reply: FastifyReply) => {
       try {
-        if (request.decodedToken == null) {
+        if (request.user == null) {
           return reply.status(401).send({ message: 'Unauthorized' });
         }
-
-        await firebaseAdmin
-          .auth()
-          .revokeRefreshTokens(request.decodedToken.uid);
 
         reply.status(200).send();
       } catch (error) {
@@ -72,7 +67,7 @@ const privateRoutes = async (fastify: FastifyInstance) => {
     '/video',
     async (request: AuthenticatedRequest, reply: FastifyReply) => {
       try {
-        if (request.decodedToken == null) {
+        if (request.user == null) {
           return reply.status(401).send({ message: 'Unauthorized' });
         }
 
@@ -82,7 +77,7 @@ const privateRoutes = async (fastify: FastifyInstance) => {
         }
 
         const dbUser = await new PrismaClient().user.findUnique({
-          where: { email: request.decodedToken.email }
+          where: { email: request.user.email }
         });
         if (dbUser == null) {
           throw new Error('User not found.');
@@ -105,7 +100,7 @@ const privateRoutes = async (fastify: FastifyInstance) => {
     '/explore',
     async (request: AuthenticatedRequest, reply: FastifyReply) => {
       try {
-        if (request.decodedToken == null) {
+        if (request.user == null) {
           return reply.status(401).send({ message: 'Unauthorized' });
         }
 
@@ -133,7 +128,7 @@ const privateRoutes = async (fastify: FastifyInstance) => {
           id: dbRoom.id,
           name: dbRoom.name,
           isJoined: dbRoom.users.some(
-            (user) => user.email === request.decodedToken?.email
+            (user) => user.email === request.user?.email
           ),
           userCount: dbRoom.users.length
         }));
@@ -150,7 +145,7 @@ const privateRoutes = async (fastify: FastifyInstance) => {
     '/leave-room',
     async (request: AuthenticatedRequest, reply: FastifyReply) => {
       try {
-        if (request.decodedToken == null) {
+        if (request.user == null) {
           return reply.status(401).send({ message: 'Unauthorized' });
         }
 
@@ -172,7 +167,7 @@ const privateRoutes = async (fastify: FastifyInstance) => {
           throw new Error(`Room could not be found.`);
         }
         const matchingUser = dbRoom.users.find(
-          (user) => user.email === request.decodedToken?.email
+          (user) => user.email === request.user?.email
         );
         if (matchingUser == null) {
           throw new Error(`User is not in this room.`);
@@ -182,7 +177,7 @@ const privateRoutes = async (fastify: FastifyInstance) => {
           data: {
             users: {
               disconnect: {
-                email: request.decodedToken?.email
+                email: request.user?.email
               }
             }
           }
@@ -198,7 +193,7 @@ const privateRoutes = async (fastify: FastifyInstance) => {
     '/join-room',
     async (request: AuthenticatedRequest, reply: FastifyReply) => {
       try {
-        if (request.decodedToken == null) {
+        if (request.user == null) {
           return reply.status(401).send({ message: 'Unauthorized' });
         }
 
@@ -220,7 +215,7 @@ const privateRoutes = async (fastify: FastifyInstance) => {
           throw new Error(`Room could not be found.`);
         }
         const matchingUser = dbRoom.users.find(
-          (user) => user.email === request.decodedToken?.email
+          (user) => user.email === request.user?.email
         );
         if (matchingUser != null) {
           throw new Error(`User is already in this room.`);
@@ -231,7 +226,7 @@ const privateRoutes = async (fastify: FastifyInstance) => {
           data: {
             users: {
               connect: {
-                email: request.decodedToken.email
+                email: request.user.email
               }
             }
           },
@@ -262,13 +257,13 @@ const privateRoutes = async (fastify: FastifyInstance) => {
     '/rooms',
     async (request: AuthenticatedRequest, reply: FastifyReply) => {
       try {
-        if (request.decodedToken == null) {
+        if (request.user == null) {
           return reply.status(401).send({ message: 'Unauthorized' });
         }
 
         const prismaClient = new PrismaClient();
         const dbRooms = await prismaClient.room.findMany({
-          where: { users: { some: { email: request.decodedToken?.email } } },
+          where: { users: { some: { email: request.user?.email } } },
           include: {
             users: true,
             channels: {
@@ -303,7 +298,7 @@ const privateRoutes = async (fastify: FastifyInstance) => {
       request: AuthenticatedRequest<{ Params: { roomId: bigint } }>,
       reply
     ) => {
-      if (request.decodedToken == null) {
+      if (request.user == null) {
         return reply.status(401).send({ message: 'Unauthorized' });
       }
 

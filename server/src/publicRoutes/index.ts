@@ -1,4 +1,3 @@
-import { PrismaClient } from '@prisma/client';
 import { FastifyReply, FastifyRequest, FastifyInstance } from 'fastify';
 import {
   Role,
@@ -8,12 +7,7 @@ import {
   SignupAPIBody,
   LoginAPIBody
 } from 'shared/shared-types';
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  getIdToken
-} from 'firebase/auth';
+import { createUser, signIn } from '../auth';
 
 const rootHandler = async (request: FastifyRequest, reply: FastifyReply) => {
   return { message: 'Hello world!' };
@@ -30,21 +24,7 @@ const loginHandler = async (request: FastifyRequest, reply: FastifyReply) => {
         .status(400)
         .send({ error: 'Email or password not provided.' });
     }
-    const auth = getAuth();
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-
-    if (userCredential.user == null)
-      throw new Error('Firebase user not found.');
-
-    const token = await getIdToken(userCredential.user);
-
-    const dbUser = await new PrismaClient().user.findUnique({
-      where: { email: userCredential.user.email as string }
-    });
+    const { dbUser, token } = await signIn(email, password);
 
     if (dbUser == null) throw new Error('Db user not found.');
 
@@ -70,26 +50,9 @@ const signUpHandler = async (request: FastifyRequest, reply: FastifyReply) => {
     if (displayName == null || email == null || password == null) {
       return reply.status(400).send({ error: 'Required fields not provided.' });
     }
-    const auth = getAuth();
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-
-    if (userCredential.user == null)
-      throw new Error('Firebase user not found after creation.');
-
-    const dbUser = await new PrismaClient().user.create({
-      data: {
-        displayName,
-        email
-      }
-    });
+    const { dbUser, token } = await createUser(displayName, email, password);
 
     if (dbUser == null) throw new Error('Db user creation failed.');
-
-    const token = await getIdToken(userCredential.user);
 
     const user: DetailedUser = {
       id: dbUser.id,

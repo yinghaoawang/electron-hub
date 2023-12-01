@@ -2,12 +2,12 @@ import {
   AuthSocketData,
   RoomMessageServerSocketData,
   RoomMessageSocketData,
-  Role,
+  Role
 } from 'shared/shared-types';
 import { Socket } from 'types';
 import { Server } from 'socket.io';
-import firebaseAdmin from 'firebase-admin';
 import { PrismaClient } from '@prisma/client';
+import { getUserFromToken } from './middlewares';
 
 export function createSocketListeners(io: Server) {
   io.on('connection', (socket: Socket) => {
@@ -18,10 +18,9 @@ export function createSocketListeners(io: Server) {
         socket.disconnect();
         return;
       }
-      let decodedToken;
+      const decodedUser = await getUserFromToken(token);
       try {
-        decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
-        if (decodedToken == null) {
+        if (decodedUser == null) {
           throw new Error('Token is invalid');
         }
       } catch (error) {
@@ -30,20 +29,11 @@ export function createSocketListeners(io: Server) {
         return;
       }
 
-      const dbUser = await new PrismaClient().user.findUnique({
-        where: { email: decodedToken.email }
-      });
-      if (dbUser == null) {
-        console.error('User not found');
-        socket.disconnect();
-        return;
-      }
-
       const user = {
-        id: dbUser.id,
-        displayName: dbUser.displayName,
-        email: dbUser.email,
-        role: dbUser.role as Role
+        id: decodedUser.id,
+        displayName: decodedUser.displayName,
+        email: decodedUser.email,
+        role: decodedUser.role as Role
       };
 
       socket.user = user;
