@@ -71,10 +71,16 @@ const privateRoutes = async (fastify: FastifyInstance) => {
           return reply.status(401).send({ message: 'Unauthorized' });
         }
 
-        const { roomId } = JSON.parse(request.body as string) as VideoAPIBody;
+        const { roomId, channelId } = JSON.parse(
+          request.body as string
+        ) as VideoAPIBody;
         if (roomId == null) {
           return reply.status(400).send({ error: 'Room id not provided.' });
         }
+        if (channelId == null) {
+          return reply.status(400).send({ error: 'Channel id not provided.' });
+        }
+        1;
 
         const dbUser = await new PrismaClient().user.findUnique({
           where: { email: request.user.email }
@@ -84,7 +90,7 @@ const privateRoutes = async (fastify: FastifyInstance) => {
         }
 
         const lkToken = createLKToken({
-          roomName: roomId.toString(),
+          roomName: roomId.toString() + '-' + channelId.toString(),
           participantName: dbUser.displayName
         });
 

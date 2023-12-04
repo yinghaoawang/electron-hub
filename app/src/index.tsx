@@ -19,7 +19,6 @@ import RoomPage from './pages/room';
 import { RoomDataProvider } from './contexts/RoomDataContext';
 import { CurrentRoomProvider } from './contexts/CurrentRoomContext';
 import ExplorePage from './pages/explore';
-import VideoPage from './pages/video';
 
 // Tells JSON.stringify to use BigInt.toString() instead of converting to an object
 (BigInt.prototype as any).toJSON = function () {
@@ -78,10 +77,6 @@ const routes = [
         path: '/explore',
         element: <ExplorePage />
       },
-      {
-        path: '/video',
-        element: <VideoPage />
-      }
     ]
   }
 ];

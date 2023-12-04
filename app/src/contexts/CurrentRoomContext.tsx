@@ -51,7 +51,7 @@ export function CurrentRoomProvider({
     );
 
     setCurrentChannel(found);
-  }, [currentRoom, roomDataArray]);
+  }, [currentRoom, roomDataArray, currentChannelId]);
 
   const setCurrentChannelById = (id: bigint) => {
     setCurrentChannelId(id);

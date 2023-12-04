@@ -3,6 +3,22 @@ import { useCurrentRoom } from '../contexts/CurrentRoomContext';
 import { useParams } from 'react-router-dom';
 import { useSocket } from '../contexts/SocketContext';
 import { useRoomData } from '../contexts/RoomDataContext';
+import { ChannelType, PostWithUser } from '../../../shared/shared-types';
+import VideoContent from '../components/video-content';
+
+const TextChannelContent = ({ posts }: { posts: PostWithUser[] }) => {
+  const reversedPosts = posts?.slice().reverse();
+  return (
+    <div className='py-4'>
+      {reversedPosts?.map((post) => (
+        <div key={post.id} className='px-4'>
+          <span className='font-semibold mr-3'>{post.user.displayName}</span>
+          <span>{post.content}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 export default function RoomPage() {
   const { roomId } = useParams();
@@ -23,30 +39,25 @@ export default function RoomPage() {
     setCurrentRoomById(BigInt(roomId));
   }, [roomId, roomDataArray]);
 
-  const reversedPosts = currentRoom?.channels?.[0]?.posts?.slice().reverse();
-
   return (
     <div className='flex page-content'>
       <div className='grow'>
         {currentRoom && (
           <div className='flex flex-col h-screen'>
-            <div className='room-topbar h-12 p-4 flex items-center font-smibold text-xl'>
+            <div className='room-topbar px-4 flex items-center font-smibold text-xl'>
               {currentRoom.name}
             </div>
             <div
               ref={postsContainerRef}
-              className='overflow-auto py-4 flex flex-col-reverse gap-2 grow'
+              className='overflow-auto flex flex-col-reverse gap-2 grow'
             >
-              {reversedPosts?.map((post) => (
-                <div key={post.id} className='px-4'>
-                  <span className='font-semibold mr-3'>
-                    {post.user.displayName}
-                  </span>
-                  <span>{post.content}</span>
-                </div>
-              ))}
+              {currentChannel?.type === ChannelType.VOICE ? (
+                <VideoContent />
+              ) : (
+                <TextChannelContent posts={currentChannel?.posts} />
+              )}
             </div>
-            {currentChannel && (
+            {currentChannel?.type === ChannelType.TEXT && (
               <div className='flex'>
                 <textarea
                   onKeyDown={(e) => {

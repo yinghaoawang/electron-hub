@@ -8,7 +8,14 @@ body {
 }
 
 :root {
+  --topbar-height: 3.5rem;
   color-scheme: light dark;
+}
+
+
+
+.room-topbar {
+  @apply h-[var(--topbar-height)];
 }
 
 @media (prefers-color-scheme: dark) {

@@ -11,7 +11,8 @@ const { VITE_API_URL } = import.meta.env;
 export default function LeftSidebar() {
   const fetch = useFetch();
   const { removeRoomData } = useRoomData();
-  const { currentRoom, currentChannel } = useCurrentRoom();
+  const { currentRoom, currentChannel, setCurrentChannelById } =
+    useCurrentRoom();
   const { authUser } = useAuth();
   const handleLeaveRoom = () => {
     const leaveRoom = async () => {
@@ -41,18 +42,40 @@ export default function LeftSidebar() {
           <div className='text-xl font-semibold mb-2'>Channels</div>
         )}
         {currentRoom?.channels.map((channel, index) => (
-          <button
+          <div
             key={index}
             className={cn(
-              'flex my-1 py-1 truncate w-full px-4 h-10 items-center rounded-md',
+              'flex flex-col my-1 w-full px-4 py-1 rounded-md',
               channel == currentChannel && 'current-channel'
             )}
           >
-            <span className='mr-2'>
-              {channel.type === ChannelType.VOICE ? '🔊' : '💬'}
+            <span
+              className={cn(
+                'flex truncate w-full h-8 items-center',
+                channel != currentChannel && 'cursor-pointer'
+              )}
+              onClick={() => {
+                console.log('setting channel', channel.id)
+                setCurrentChannelById(channel.id);
+              }}
+            >
+              <span className='mr-2'>
+                {channel.type === ChannelType.VOICE ? '🔊' : '💬'}
+              </span>
+              <span>{channel.name}</span>
             </span>
-            <span>{channel.name}</span>
-          </button>
+            {['tmpuser1', 'tmpuser2', 'tmpuser3']
+              .filter(() => channel.type === ChannelType.VOICE)
+              .map((user) => (
+                <div
+                  key={user}
+                  className='flex truncate w-full h-8 items-center ml-4'
+                >
+                  <span className='mr-2'>🎵</span>
+                  <span>{user}</span>
+                </div>
+              ))}
+          </div>
         ))}
         {currentRoom && (
           <button

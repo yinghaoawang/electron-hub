@@ -87,6 +87,7 @@ export interface LeaveRoomAPIData {
 }
 export interface VideoAPIBody {
   roomId: bigint;
+  channelId: bigint;
 }
 export interface VideoAPIResData {
   lkToken: string;
