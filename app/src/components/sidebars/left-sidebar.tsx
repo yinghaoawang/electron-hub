@@ -64,7 +64,7 @@ export default function LeftSidebar() {
               </span>
               <span>{channel.name}</span>
             </span>
-            {['tmpuser1', 'tmpuser2', 'tmpuser3']
+            {/* {['tmpuser1', 'tmpuser2', 'tmpuser3']
               .filter(() => channel.type === ChannelType.VOICE)
               .map((user) => (
                 <div
@@ -74,7 +74,7 @@ export default function LeftSidebar() {
                   <span className='mr-2'>🎵</span>
                   <span>{user}</span>
                 </div>
-              ))}
+              ))} */}
           </div>
         ))}
         {currentRoom && (
